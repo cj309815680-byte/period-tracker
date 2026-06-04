@@ -61,30 +61,33 @@ body {
 .tab-item.active { color: #EC4899; font-weight: 600; }
 
 /* ===== Today Dashboard ===== */
-.today-container { padding: 0 16px 20px; }
+.today-container { padding: 14px 16px 20px; }
+
+.today-header-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
 
 .today-date {
   font-size: 28px;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 2px;
 }
 .today-weekday {
   font-size: 14px;
   color: #999;
-  margin-bottom: 6px;
 }
 
 .today-ganzhi {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   font-size: 13px;
   color: #6B7280;
-  margin-bottom: 18px;
   background: #F9FAFB;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  white-space: nowrap;
 }
 .today-ganzhi .gz-auspicious {
   color: #DC2626;
@@ -713,17 +716,16 @@ body {
 <body>
 <div class="app" id="app">
 
-  <!-- Header -->
-  <div class="header-bar">
-    <span class="app-title">小B</span>
-  </div>
+  <!-- Header removed -->
 
   <!-- ===== Tab 1: 今日 ===== -->
   <div class="tab-panel active" id="panel-today">
     <div class="today-container" id="todayContainer">
-      <div class="today-date" id="todayDate">(加载中...)</div>
-      <div class="today-weekday" id="todayWeekday"></div>
-      <div class="today-ganzhi" id="todayGanZhi"></div>
+      <div class="today-header-row">
+        <span class="today-date" id="todayDate">(加载中...)</span>
+        <span class="today-weekday" id="todayWeekday"></span>
+        <span class="today-ganzhi" id="todayGanZhi"></span>
+      </div>
       <div class="today-reminders" id="todayReminders"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
 
