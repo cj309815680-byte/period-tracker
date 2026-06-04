@@ -150,43 +150,25 @@ body {
 .today-summary-label { color: #888; }
 .today-summary-val { color: #333; font-weight: 500; }
 
-/* ===== Expense tracker ===== */
-.expense-section {
-  margin-top: 16px;
+/* ===== Expense quick view (today page) ===== */
+.expense-quick {
+  margin-top: 12px;
+  background: #fafafa; border-radius: 14px; padding: 12px 14px;
 }
-
-.expense-header {
+.expense-quick-row {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 10px;
 }
-.expense-title {
-  font-size: 13px; font-weight: 600; color: #999;
-}
+.expense-quick-label { font-size: 12px; color: #999; margin-right: 6px; }
+.expense-quick-amount { font-size: 20px; font-weight: 700; color: #333; }
+
 .expense-add-btn {
   background: #EC4899; color: #fff; border: none;
-  border-radius: 16px; padding: 5px 14px;
+  border-radius: 16px; padding: 6px 14px;
   font-size: 12px; font-weight: 600; cursor: pointer;
 }
 
-.expense-stats {
-  display: flex; gap: 12px; margin-bottom: 10px;
-}
-.expense-stat {
-  flex: 1; background: #fafafa; border-radius: 12px;
-  padding: 12px; text-align: center;
-}
-.expense-stat-amount {
-  font-size: 22px; font-weight: 700; color: #333;
-}
-.expense-stat-amount .yen { font-size: 14px; font-weight: 400; }
-.expense-stat-label {
-  font-size: 11px; color: #999; margin-top: 2px;
-}
-
 .expense-form {
-  display: none; background: #fff; border-radius: 14px;
-  border: 1px solid #eee; padding: 14px;
-  margin-bottom: 10px;
+  display: none; margin-top: 10px;
 }
 .expense-form.show { display: block; }
 
@@ -198,7 +180,7 @@ body {
 .expense-amount {
   flex: 1; border: 1px solid #e5e5e5; border-radius: 10px;
   padding: 10px 14px; font-size: 18px; font-weight: 600;
-  outline: none; font-family: inherit;
+  outline: none; font-family: inherit; background: #fff;
 }
 .expense-amount:focus { border-color: #EC4899; }
 
@@ -217,7 +199,7 @@ body {
 
 .expense-note {
   flex: 1; border: 1px solid #e5e5e5; border-radius: 10px;
-  padding: 10px 14px; font-size: 14px; outline: none; font-family: inherit;
+  padding: 10px 14px; font-size: 14px; outline: none; font-family: inherit; background: #fff;
 }
 .expense-note:focus { border-color: #EC4899; }
 
@@ -225,6 +207,68 @@ body {
   width: 100%; padding: 10px; border: none; border-radius: 10px;
   background: #EC4899; color: #fff; font-size: 15px; font-weight: 600;
   cursor: pointer;
+}
+
+/* ===== Expense Tab Page ===== */
+.expense-page { padding: 14px 16px 20px; }
+
+.expense-month-bar {
+  display: flex; justify-content: center; align-items: center; gap: 16px;
+  margin-bottom: 16px;
+}
+.expense-month-bar .strip-nav-btn { width: 30px; height: 30px; }
+.expense-month-label { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+
+.expense-month-total {
+  text-align: center; margin-bottom: 18px;
+}
+.expense-total-label { font-size: 13px; color: #999; display: block; margin-bottom: 4px; }
+.expense-total-amount { font-size: 36px; font-weight: 700; color: #333; }
+
+/* Category breakdown bars */
+.expense-cat-breakdown { margin-bottom: 18px; }
+.expense-cat-row {
+  display: flex; align-items: center; padding: 8px 0; gap: 10px;
+  border-bottom: 1px solid #f5f5f5;
+}
+.expense-cat-icon { font-size: 18px; width: 32px; text-align: center; flex-shrink: 0; }
+.expense-cat-name { font-size: 13px; width: 40px; flex-shrink: 0; color: #555; }
+.expense-cat-bar-wrap { flex: 1; height: 18px; background: #f0f0f0; border-radius: 9px; overflow: hidden; position: relative; }
+.expense-cat-bar { height: 100%; border-radius: 9px; min-width: 4px; }
+.expense-cat-amount { font-size: 12px; font-weight: 600; color: #333; width: 56px; text-align: right; flex-shrink: 0; }
+.expense-cat-pct { font-size: 11px; color: #aaa; width: 36px; text-align: right; flex-shrink: 0; }
+
+/* Daily list */
+.expense-daily-list { }
+.expense-day-group {
+  margin-bottom: 12px;
+}
+.expense-day-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+}
+.expense-day-date {
+  font-size: 13px; font-weight: 600; color: #555;
+}
+.expense-day-total {
+  font-size: 13px; font-weight: 600; color: #EC4899;
+}
+.expense-item {
+  display: flex; align-items: center; padding: 6px 0; gap: 8px;
+  font-size: 13px;
+}
+.expense-item-cat {
+  font-size: 14px; flex-shrink: 0;
+}
+.expense-item-note { flex: 1; color: #888; }
+.expense-item-amount { font-weight: 500; color: #333; }
+.expense-item-del {
+  width: 22px; height: 22px; border-radius: 11px; border: none;
+  background: #fee2e2; color: #ef4444; font-size: 10px;
+  cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+.expense-empty {
+  text-align: center; padding: 30px; color: #ccc; font-size: 14px;
 }
 
 /* ===== Top: Phase Bar ===== */
@@ -741,21 +785,14 @@ body {
       <div class="today-reminders" id="todayReminders"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
 
-      <!-- Expense -->
-      <div class="expense-section" id="expenseSection">
-        <div class="expense-header">
-          <span class="expense-title">💰 今日记账</span>
+      <!-- Expense quick view -->
+      <div class="expense-quick" id="expenseQuick">
+        <div class="expense-quick-row">
+          <div class="expense-quick-stat">
+            <span class="expense-quick-label">今日花费</span>
+            <span class="expense-quick-amount">¥<span id="todayExpense">0</span></span>
+          </div>
           <button class="expense-add-btn" onclick="toggleExpenseForm()">+ 记一笔</button>
-        </div>
-        <div class="expense-stats">
-          <div class="expense-stat">
-            <div class="expense-stat-amount"><span class="yen">¥</span><span id="todayExpense">0</span></div>
-            <div class="expense-stat-label">今日</div>
-          </div>
-          <div class="expense-stat">
-            <div class="expense-stat-amount"><span class="yen">¥</span><span id="monthExpense">0</span></div>
-            <div class="expense-stat-label">本月</div>
-          </div>
         </div>
         <div class="expense-form" id="expenseForm">
           <div class="expense-form-row">
@@ -827,6 +864,27 @@ body {
     </div>
   </div>
 
+  <!-- ===== Tab 4: 记账 ===== -->
+  <div class="tab-panel" id="panel-expense">
+    <div class="expense-page" id="expensePage">
+      <!-- Month selector -->
+      <div class="expense-month-bar">
+        <button class="strip-nav-btn" onclick="expensePrevMonth()">◀</button>
+        <span class="expense-month-label" id="expenseMonthLabel">2026年6月</span>
+        <button class="strip-nav-btn" onclick="expenseNextMonth()">▶</button>
+      </div>
+      <!-- Monthly total -->
+      <div class="expense-month-total" id="expenseMonthTotal">
+        <span class="expense-total-label">本月支出</span>
+        <span class="expense-total-amount">¥<span id="expenseTotalAmount">0</span></span>
+      </div>
+      <!-- Category breakdown -->
+      <div class="expense-cat-breakdown" id="expenseCatBreakdown"></div>
+      <!-- Daily list -->
+      <div class="expense-daily-list" id="expenseDailyList"></div>
+    </div>
+  </div>
+
   <!-- ===== Bottom Tab Bar ===== -->
   <div class="tab-bar">
     <div class="tab-item active" data-tab="today" onclick="switchTab('today')">
@@ -837,6 +895,9 @@ body {
     </div>
     <div class="tab-item" data-tab="cat" onclick="switchTab('cat')">
       <span class="tab-icon">🐱</span>猫猫
+    </div>
+    <div class="tab-item" data-tab="expense" onclick="switchTab('expense')">
+      <span class="tab-icon">💰</span>记账
     </div>
   </div>
 </div>
@@ -966,6 +1027,7 @@ function switchTab(tab) {
   if (tab === 'today') renderToday();
   if (tab === 'diary') renderDiaryTab();
   if (tab === 'cat') refreshCatData();
+  if (tab === 'expense') renderExpensePage();
 }
 
 // ===== Today Dashboard =====
@@ -1179,14 +1241,21 @@ function renderDiaryTab() {
 
 // ===== Expense Tracking =====
 const EXPENSE_CATS = [
-  { key: '餐饮', emoji: '🍜' },
-  { key: '交通', emoji: '🚗' },
-  { key: '购物', emoji: '🛒' },
-  { key: '娱乐', emoji: '🎮' },
-  { key: '日用', emoji: '🏠' },
-  { key: '其他', emoji: '💰' }
+  { key: '餐饮', emoji: '🍜', color: '#F59E0B' },
+  { key: '交通', emoji: '🚗', color: '#3B82F6' },
+  { key: '购物', emoji: '🛒', color: '#EC4899' },
+  { key: '娱乐', emoji: '🎮', color: '#8B5CF6' },
+  { key: '日用', emoji: '🏠', color: '#10B981' },
+  { key: '其他', emoji: '💰', color: '#6B7280' }
 ];
 let selectedCat = null;
+let expenseYear, expenseMonth;
+
+function initExpenseState() {
+  const now = new Date();
+  expenseYear = now.getFullYear();
+  expenseMonth = now.getMonth(); // 0-based
+}
 
 function toggleExpenseForm() {
   const form = document.getElementById('expenseForm');
@@ -1242,41 +1311,151 @@ function saveExpense() {
 
   renderExpenseStats();
   renderTodaySummary(getData());
+  // Refresh expense page if on that tab
+  if (currentTab === 'expense') renderExpensePage();
 }
 
 function renderExpenseStats() {
   const data = getData();
   const today = getToday();
-  const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-
   let todayTotal = 0;
-  let monthTotal = 0;
+  if (data.expenses && data.expenses[today]) {
+    for (const item of data.expenses[today]) {
+      todayTotal += item.amount;
+    }
+  }
+  document.getElementById('todayExpense').textContent = todayTotal.toFixed(2);
+}
+
+// ===== Expense Tab Page =====
+function renderExpensePage() {
+  if (!expenseYear) initExpenseState();
+  document.getElementById('expenseMonthLabel').textContent = `${expenseYear}年${expenseMonth+1}月`;
+  
+  const data = getData();
+  const prefix = `${expenseYear}-${String(expenseMonth+1).padStart(2,'0')}-`;
+  
+  // Collect all items for this month
+  let allItems = [];
+  let monthlyTotal = 0;
+  const catTotals = {};
+  EXPENSE_CATS.forEach(c => catTotals[c.key] = 0);
 
   if (data.expenses) {
     for (const [date, items] of Object.entries(data.expenses)) {
-      for (const item of items) {
-        if (date === today) todayTotal += item.amount;
-        if (date.startsWith(currentMonth)) monthTotal += item.amount;
+      if (date.startsWith(prefix)) {
+        for (const item of items) {
+          allItems.push({ date, ...item });
+          monthlyTotal += item.amount;
+          catTotals[item.category] = (catTotals[item.category] || 0) + item.amount;
+        }
       }
     }
   }
 
-  document.getElementById('todayExpense').textContent = todayTotal.toFixed(2);
-  document.getElementById('monthExpense').textContent = monthTotal.toFixed(2);
+  // Total
+  document.getElementById('expenseTotalAmount').textContent = monthlyTotal.toFixed(2);
+
+  // Category breakdown
+  renderCatBreakdown(catTotals, monthlyTotal);
+
+  // Daily list
+  renderDailyList(allItems);
 }
 
-function renderExpenseToday(data) {
-  const today = getToday();
-  const items = data.expenses ? data.expenses[today] : null;
-  if (!items || items.length === 0) return '';
+function renderCatBreakdown(catTotals, monthlyTotal) {
+  const el = document.getElementById('expenseCatBreakdown');
+  const catEmoji = {};
+  const catColor = {};
+  EXPENSE_CATS.forEach(c => { catEmoji[c.key] = c.emoji; catColor[c.key] = c.color; });
 
+  // Sort by amount desc
+  const sorted = EXPENSE_CATS
+    .map(c => ({ ...c, amount: catTotals[c.key] }))
+    .sort((a, b) => b.amount - a.amount);
+
+  if (monthlyTotal === 0) {
+    el.innerHTML = '<div class="expense-empty">暂无记录</div>';
+    return;
+  }
+
+  el.innerHTML = sorted.filter(c => c.amount > 0).map(c => {
+    const pct = ((c.amount / monthlyTotal) * 100).toFixed(0);
+    const barW = Math.max(pct, 3);
+    return `<div class="expense-cat-row">
+      <span class="expense-cat-icon">${c.emoji}</span>
+      <span class="expense-cat-name">${c.key}</span>
+      <div class="expense-cat-bar-wrap">
+        <div class="expense-cat-bar" style="width:${barW}%;background:${c.color}"></div>
+      </div>
+      <span class="expense-cat-amount">¥${c.amount.toFixed(2)}</span>
+      <span class="expense-cat-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+function renderDailyList(allItems) {
+  const el = document.getElementById('expenseDailyList');
+  if (allItems.length === 0) {
+    el.innerHTML = '<div class="expense-empty">这个月还没有记账</div>';
+    return;
+  }
+
+  // Group by date (newest first)
+  const groups = {};
+  for (const item of allItems) {
+    if (!groups[item.date]) groups[item.date] = { total: 0, items: [] };
+    groups[item.date].total += item.amount;
+    groups[item.date].items.push(item);
+  }
+
+  const sortedDates = Object.keys(groups).sort().reverse();
   const catEmoji = {};
   EXPENSE_CATS.forEach(c => catEmoji[c.key] = c.emoji);
 
-  return '<div style="margin-top:8px;font-size:12px;color:#aaa">' +
-    items.map(i => `${catEmoji[i.category] || ''}${i.category} ¥${i.amount.toFixed(2)}${i.note ? ' · ' + i.note : ''}`).join('<br>') +
-    '</div>';
+  el.innerHTML = sortedDates.map(date => {
+    const g = groups[date];
+    const [y, m, d] = date.split('-').map(Number);
+    const dow = ['日','一','二','三','四','五','六'][new Date(y, m-1, d).getDay()];
+    return `<div class="expense-day-group">
+      <div class="expense-day-header">
+        <span class="expense-day-date">${m}月${d}日 周${dow}</span>
+        <span class="expense-day-total">¥${g.total.toFixed(2)}</span>
+      </div>
+      ${g.items.map((item, idx) => `
+        <div class="expense-item">
+          <span class="expense-item-cat">${catEmoji[item.category] || ''}</span>
+          <span class="expense-item-note">${item.note || item.category}</span>
+          <span class="expense-item-amount">¥${item.amount.toFixed(2)}</span>
+          <button class="expense-item-del" onclick="deleteExpenseItem('${date}',${idx})" title="删除">✕</button>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+
+function deleteExpenseItem(date, idx) {
+  const data = getData();
+  if (!data.expenses || !data.expenses[date]) return;
+  data.expenses[date].splice(idx, 1);
+  if (data.expenses[date].length === 0) delete data.expenses[date];
+  _data = data;
+  localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+  saveToCloud(data);
+  renderExpensePage();
+  renderExpenseStats();
+}
+
+function expensePrevMonth() {
+  expenseMonth--;
+  if (expenseMonth < 0) { expenseMonth = 11; expenseYear--; }
+  renderExpensePage();
+}
+
+function expenseNextMonth() {
+  expenseMonth++;
+  if (expenseMonth > 11) { expenseMonth = 0; expenseYear++; }
+  renderExpensePage();
 }
 
 // ===== Cloud Sync =====
