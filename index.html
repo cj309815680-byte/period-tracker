@@ -228,6 +228,17 @@ body {
 .today-summary-row:last-child { border-bottom: none; }
 .today-summary-label { color: #888; }
 .today-summary-val { color: #333; font-weight: 500; }
+.cat-sync-btn {
+  display: block; width: 100%;
+  margin-top: 12px; padding: 8px 0;
+  background: #f0f0f0; border: none; border-radius: 10px;
+  color: #666; font-size: 12px; cursor: pointer;
+  transition: background 0.2s;
+}
+.cat-sync-btn:hover { background: #e0e0e0; }
+.cat-sync-btn.syncing {
+  background: #e8f0fe; color: #4285f4; pointer-events: none;
+}
 
 /* ===== Expense quick view (today page) ===== */
 .expense-quick {
@@ -845,15 +856,6 @@ body {
 <body>
 <div class="app" id="app">
 
-  <!-- Header Bar -->
-  <div class="header-bar">
-    <span class="app-title">小B</span>
-    <div class="header-actions">
-      <button class="icon-btn" onclick="refreshCatData()" title="同步猫猫状态">🔄</button>
-      <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
-    </div>
-  </div>
-
   <!-- ===== Tab 1: 今日 ===== -->
   <div class="tab-panel active" id="panel-today">
     <div class="today-container" id="todayContainer">
@@ -865,6 +867,7 @@ body {
       <div class="today-reminders" id="todayReminders"></div>
       <div class="today-courses" id="todayCourses" style="display:none"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
+      <button class="cat-sync-btn" id="catSyncBtn" onclick="syncCatData()">🔄 同步猫猫数据</button>
 
       <!-- Expense quick view -->
       <div class="expense-quick" id="expenseQuick">
@@ -1650,6 +1653,27 @@ async function loadCatData() {
 async function refreshCatData() {
   _catData = await loadCatData();
   renderToday();
+}
+
+async function syncCatData() {
+  const btn = document.getElementById('catSyncBtn');
+  const orig = btn.textContent;
+  btn.textContent = '⏳ 同步中...';
+  btn.classList.add('syncing');
+
+  try {
+    _catData = await loadCatData();
+    renderToday();
+    btn.textContent = '✅ 同步完成';
+    btn.classList.remove('syncing');
+  } catch(e) {
+    btn.textContent = '❌ 同步失败';
+    btn.classList.remove('syncing');
+  }
+
+  setTimeout(() => {
+    btn.textContent = orig;
+  }, 2000);
 }
 
 
