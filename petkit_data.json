@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-04T13:37:31.428603+08:00",
+  "updated_at": "2026-06-04T13:53:26.867078+08:00",
   "litter_box": {
     "name": "无处安放的猫厕所",
     "model": "Petkit Pura Max",
@@ -34,7 +34,7 @@
     "door": 1,
     "block": null,
     "overall": 1,
-    "desiccant_left_days": 0,
+    "desiccant_left_days": 30,
     "error_msg": null,
     "error_code": null,
     "feed_plan": [],
