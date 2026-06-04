@@ -718,7 +718,7 @@ body {
     <span class="app-title">小B</span>
     <div class="header-actions">
       <span id="syncStatus" style="font-size:11px;cursor:pointer;line-height:34px;margin-right:6px" title="点击刷新云端数据" onclick="syncFromCloud()">☁️</span>
-      <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
+    
     </div>
   </div>
 
@@ -1126,8 +1126,6 @@ function renderTodaySummary(data) {
     html += rows.map(r => 
       `<div class="today-summary-row"><span class="today-summary-label">${r.label}</span><span class="today-summary-val">${r.val}</span></div>`
     ).join('');
-    // Add cat sync button
-    html += '<div style="text-align:right;margin-top:10px"><button id="catSyncBtn" onclick="syncCatData()" style="border:none;background:none;color:#6366F1;font-size:11px;cursor:pointer">🔄 同步猫猫数据</button></div>';
     el.innerHTML = html;
     el.style.display = 'block';
   } else {
