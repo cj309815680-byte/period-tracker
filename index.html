@@ -1615,6 +1615,9 @@ function getActionReminders() {
   if (d === 15 && !completed.dryer) {
     actions.push({ key: 'dryer', icon: '🧪', title: '更换干燥剂', desc: '每月15号，该换猫粮干燥剂了', iconClass: 'food' });
   }
+  if (d === 1 && !completed.credit_card) {
+    actions.push({ key: 'credit_card', icon: '💳', title: '还信用卡', desc: '每月1号，别忘了还信用卡', iconClass: 'food' });
+  }
   return actions;
 }
 
