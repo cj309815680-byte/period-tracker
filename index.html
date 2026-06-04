@@ -312,100 +312,105 @@ body {
   text-align: center; padding: 30px; color: #ccc; font-size: 14px;
 }
 
-/* ===== Learning Tab ===== */
-.learn-page { padding: 14px 16px 20px; }
+/* ===== Learning Tab - Week Calendar ===== */
+.learn-page { padding: 10px 16px 20px; }
 
-.learn-today-title {
-  font-size: 13px; font-weight: 600; color: #999;
-  margin-bottom: 10px;
-  text-transform: uppercase; letter-spacing: 1px;
-}
-
-.learn-course {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: box-shadow 0.2s;
-}
-.learn-course.today {
-  border-color: #A78BFA;
-  background: #FAF5FF;
-}
-
-.learn-course-icon {
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; flex-shrink: 0;
-  background: #F3F4F6;
-}
-.learn-course.today .learn-course-icon { background: #EDE9FE; }
-
-.learn-course-body { flex: 1; min-width: 0; }
-.learn-course-name {
-  font-size: 15px; font-weight: 600; color: #1a1a1a;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.learn-course-meta {
-  font-size: 12px; color: #999; margin-top: 3px;
+.learn-week-nav {
   display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
 }
-.learn-course-meta .platform-tag {
-  background: #F3F4F6; padding: 1px 8px; border-radius: 10px;
-  font-size: 11px;
+.learn-week-btn {
+  border: none; background: #f3f4f6; color: #333;
+  width: 32px; height: 32px; border-radius: 10px;
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.learn-week-btn:hover { background: #e5e7eb; }
+.learn-week-label {
+  flex: 1; text-align: center;
+  font-size: 14px; font-weight: 600; color: #333;
+}
+.learn-week-today {
+  width: auto; padding: 0 12px; font-size: 12px;
+  background: #EDE9FE; color: #7C3AED;
 }
 
-.learn-course-actions {
-  display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+/* 7-day grid */
+.learn-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
 }
-.learn-course-btn {
-  width: 28px; height: 28px; border-radius: 8px; border: none;
-  font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+.learn-day {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 6px;
+  min-height: 100px;
+  display: flex; flex-direction: column;
+  border: 1px solid transparent;
 }
-.learn-course-btn.edit { background: #F3F4F6; color: #6B7280; }
-.learn-course-btn.del { background: #FEE2E2; color: #EF4444; }
-.learn-course-btn.link { background: #EFF6FF; color: #3B82F6; }
+.learn-day.today {
+  border-color: #A78BFA; background: #FAF5FF;
+}
+.learn-day.fri {
+  background: #f9fafb;
+}
+.learn-day-header {
+  font-size: 10px; color: #999;
+  text-align: center; margin-bottom: 4px;
+  line-height: 1;
+}
+.learn-day-date {
+  font-size: 14px; font-weight: 700; color: #333;
+  text-align: center; margin-bottom: 4px;
+}
+.learn-day.today .learn-day-date {
+  color: #7C3AED;
+}
+.learn-day.fri .learn-day-date { color: #bbb; }
 
-.learn-add-btn {
-  display: block; width: 100%;
-  border: 2px dashed #ddd; border-radius: 14px;
-  background: none; color: #aaa;
-  font-size: 14px; padding: 14px;
-  cursor: pointer; margin-top: 10px;
-  transition: all 0.2s;
+.learn-day-courses {
+  display: flex; flex-direction: column; gap: 3px;
+  flex: 1;
 }
-.learn-add-btn:hover { border-color: #A78BFA; color: #A78BFA; }
+.learn-day-dot {
+  font-size: 10px; line-height: 1.3;
+  padding: 2px 4px; border-radius: 5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: default;
+}
+.learn-day-dot.c1 { background: #FCE7F3; color: #BE185D; }  /* 服饰设计 */
+.learn-day-dot.c2 { background: #E0E7FF; color: #3730A3; }  /* 色彩课 */
+.learn-day-dot.c3 { background: #FEF3C7; color: #92400E; }  /* 千变少女打卡 */
 
-.learn-form {
-  display: none; margin-top: 12px;
-  background: #FAFAFA; border-radius: 14px; padding: 16px;
+.learn-day-rest {
+  text-align: center; font-size: 11px;
+  color: #ccc; padding: 12px 0;
 }
-.learn-form.show { display: block; }
-.learn-input {
-  display: block; width: 100%;
-  border: 1px solid #e5e7eb; border-radius: 10px;
-  padding: 10px 12px; font-size: 14px; margin-bottom: 10px;
-  box-sizing: border-box;
-}
-.learn-input:focus { outline: none; border-color: #A78BFA; }
-.learn-input-date, .learn-input-time { width: auto; display: inline-block; }
-.learn-form-row {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
-}
-.learn-form-label { font-size: 13px; color: #666; white-space: nowrap; }
 
-.learn-section-title {
-  font-size: 13px; font-weight: 600; color: #999;
-  margin: 18px 0 10px;
+.learn-conflict {
+  background: #FFF1F2; border-radius: 6px;
+  padding: 4px 6px; margin-top: 4px;
+  font-size: 9px; color: #E11D48; text-align: center;
+  font-weight: 600;
 }
-.learn-empty {
-  text-align: center; padding: 40px 20px; color: #ccc; font-size: 14px;
+
+/* Legend */
+.learn-legend {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-top: 14px; padding: 10px 0;
+  border-top: 1px solid #f0f0f0;
 }
+.learn-legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: #666;
+}
+.learn-legend-dot {
+  width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+}
+.learn-legend-dot.l1 { background: #FCE7F3; }
+.learn-legend-dot.l2 { background: #E0E7FF; }
+.learn-legend-dot.l3 { background: #FEF3C7; }
 
 /* ===== Top: Phase Bar ===== */
 .phase-bar {
@@ -925,27 +930,17 @@ body {
   <!-- ===== Tab 4: 学习 ===== -->
   <div class="tab-panel" id="panel-learn">
     <div class="learn-page" id="learnPage">
-      <!-- Today's courses -->
-      <div class="learn-today" id="learnToday"></div>
-      <!-- All courses -->
-      <div class="learn-list" id="learnList"></div>
-      <!-- Add button -->
-      <button class="learn-add-btn" onclick="toggleCourseForm()">+ 添加课程</button>
-      <!-- Add form -->
-      <div class="learn-form" id="learnForm">
-        <input type="text" class="learn-input" id="courseName" placeholder="课程名称">
-        <input type="text" class="learn-input" id="coursePlatform" placeholder="平台（小鹅通/B站/其他）">
-        <div class="learn-form-row">
-          <span class="learn-form-label">下次上课</span>
-          <input type="date" class="learn-input learn-input-date" id="courseNextDate">
-          <input type="time" class="learn-input learn-input-time" id="courseNextTime" value="19:30">
-        </div>
-        <input type="url" class="learn-input" id="courseLink" placeholder="课程链接（选填）">
-        <div class="learn-form-actions">
-          <button class="btn btn-full btn-primary" onclick="saveCourse()">保存</button>
-          <button class="btn btn-full" style="background:#f3f4f6;color:#666;margin-top:6px" onclick="toggleCourseForm()">取消</button>
-        </div>
+      <!-- Week navigator -->
+      <div class="learn-week-nav">
+        <button class="learn-week-btn" onclick="learnPrevWeek()">◀</button>
+        <span class="learn-week-label" id="learnWeekLabel"></span>
+        <button class="learn-week-btn" onclick="learnNextWeek()">▶</button>
+        <button class="learn-week-btn learn-week-today" onclick="learnGoToday()">今天</button>
       </div>
+      <!-- 7-day calendar -->
+      <div class="learn-cal" id="learnCal"></div>
+      <!-- Legend -->
+      <div class="learn-legend" id="learnLegend"></div>
     </div>
   </div>
 
@@ -1713,161 +1708,134 @@ function getPhaseInfo(data, dateStr) {
   return { phase, phaseDay, phaseTotal, cycleDay, prediction };
 }
 
-// ===== Learning / Courses =====
-const COURSE_KEY = 'xiaob_courses_v1';
-let _editCourseId = null;
+// ===== Learning / Course Calendar =====
 
-function getCourses() {
-  try { const raw = localStorage.getItem(COURSE_KEY); return raw ? JSON.parse(raw) : []; }
-  catch(e) { return []; }
+// Course data: { date: 'YYYY-MM-DD', course: 'c1'|'c2'|'c3', label: string }
+const COURSE_DATA = buildCourseData();
+let _learnWeekOffset = 0;
+
+function buildCourseData() {
+  const data = [];
+
+  // c1: 服饰设计 (具体日期)
+  const fushi = [
+    ['2026-06-11','开课语'],['2026-06-13','图形'],['2026-06-16','剪影'],
+    ['2026-06-18','带画讲解'],['2026-06-20','饰品设计'],['2026-06-23','物件设计'],
+    ['2026-06-25','带画讲解'],['2026-06-27','主题设计'],['2026-06-30','整体搭配'],
+    ['2026-07-02','带画讲解'],['2026-07-04','半身设计'],['2026-07-07','带画讲解'],
+    ['2026-07-09','带画补充'],['2026-07-11','色彩搭配'],['2026-07-14','带画讲解'],
+    ['2026-07-16','带画补充'],['2026-07-18','服装剪裁'],['2026-07-21','带画讲解'],
+    ['2026-07-23','带画补充'],['2026-07-25','裙装设计'],['2026-07-28','带画讲解'],
+    ['2026-07-30','带画补充'],['2026-08-01','制服设计'],['2026-08-04','带画讲解'],
+    ['2026-08-06','带画补充'],['2026-08-08','结课语']
+  ];
+  fushi.forEach(([d, label]) => data.push({ date: d, course: 'c1', label }));
+
+  // c2: 色彩课 (7/17-9/26, 周五休息)
+  // 每周：周一理论+带画、周二强化训练、周三答疑、周四纠错、周六理论+带画、周日强化训练
+  const colorStart = new Date('2026-07-17');
+  const colorEnd = new Date('2026-09-26');
+  const colorLabels = { 1:'理论+带画', 2:'强化训练', 3:'本周答疑', 4:'本周纠错', 6:'理论+带画', 0:'强化训练' };
+  let d = new Date(colorStart);
+  while (d <= colorEnd) {
+    const dow = d.getDay(); // 0=Sun, 5=Fri
+    if (dow !== 5) {
+      const label = colorLabels[dow] || '';
+      data.push({ date: fmtDate(d), course: 'c2', label });
+    }
+    d.setDate(d.getDate() + 1);
+  }
+
+  // c3: 千变少女打卡 (剩余打卡日期, 不是上课)
+  const qianda = [
+    ['2026-06-07','第五次打卡'],['2026-06-10','第六次打卡'],
+    ['2026-06-14','第七次打卡'],['2026-06-17','第八次打卡']
+  ];
+  qianda.forEach(([d, label]) => data.push({ date: d, course: 'c3', label }));
+
+  return data;
 }
-function saveCourses(courses) { localStorage.setItem(COURSE_KEY, JSON.stringify(courses)); }
+
+function fmtDate(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+function getCourseColor(c) {
+  if (c === 'c1') return { dot: 'c1', label: '服饰设计' };
+  if (c === 'c2') return { dot: 'c2', label: '色彩课' };
+  if (c === 'c3') return { dot: 'c3', label: '打卡' };
+}
 
 function renderLearnPage() {
-  const courses = getCourses();
-  const today = getToday();
-  const todayCourses = courses.filter(c => c.nextDate === today);
-  const upcoming = courses.filter(c => c.nextDate && c.nextDate > today)
-    .sort((a, b) => a.nextDate.localeCompare(b.nextDate));
-
-  // Today section
-  const todayEl = document.getElementById('learnToday');
-  if (todayCourses.length > 0) {
-    todayEl.innerHTML = '<div class="learn-today-title">📅 今日课程</div>' +
-      todayCourses.map(c => courseHTML(c, true)).join('');
-  } else {
-    todayEl.innerHTML = '<div class="learn-today-title">📅 今日课程</div>' +
-      '<div class="learn-empty" style="padding:16px;font-size:13px">今天没有课 🎉</div>';
+  // Calculate week start (Monday-based, offset by _learnWeekOffset)
+  const now = new Date();
+  const todayDow = now.getDay(); // 0=Sun
+  const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow; // days to Monday
+  const baseMonday = new Date(now);
+  baseMonday.setDate(now.getDate() + mondayOffset + _learnWeekOffset * 7);
+  
+  const weekDays = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseMonday);
+    d.setDate(baseMonday.getDate() + i);
+    weekDays.push(d);
   }
 
-  // All courses section
-  const listEl = document.getElementById('learnList');
-  if (courses.length === 0) {
-    listEl.innerHTML = '<div class="learn-empty">还没有添加课程，点下方按钮开始</div>';
-    return;
-  }
+  // Week label
+  const mon = weekDays[0], sun = weekDays[6];
+  document.getElementById('learnWeekLabel').textContent = 
+    `${mon.getMonth()+1}月${mon.getDate()}日 - ${sun.getMonth()+1}月${sun.getDate()}日`;
 
-  let html = '<div class="learn-section-title">📚 全部课程</div>';
+  // Build calendar grid
+  const todayStr = getToday();
+  const dayNames = ['一','二','三','四','五','六','日'];
   
-  // Today's courses (repeat in all list for completeness, but visually grouped)
-  // Upcoming sorted by date
-  const other = courses.filter(c => !todayCourses.includes(c));
-  const sorted = [...todayCourses, ...other.sort((a, b) => {
-    if (!a.nextDate && !b.nextDate) return 0;
-    if (!a.nextDate) return 1;
-    if (!b.nextDate) return -1;
-    return a.nextDate.localeCompare(b.nextDate);
-  })];
-  
-  html += sorted.map(c => courseHTML(c, todayCourses.includes(c))).join('');
-  listEl.innerHTML = html;
-}
-
-function courseHTML(c, isToday) {
-  const cls = isToday ? 'learn-course today' : 'learn-course';
-  const icon = c.platform === '小鹅通' ? '🦢' : c.platform === 'B站' ? '📺' : '📖';
-  const nextStr = c.nextDate ? formatDateShort(c.nextDate) + (c.nextTime ? ' ' + c.nextTime : '') : '未设置';
-  const linkBtn = c.link ? `<button class="learn-course-btn link" onclick="event.stopPropagation();openCourseLink('${escAttr(c.link)}')" title="打开链接">🔗</button>` : '';
-  const todayBadge = isToday ? '<span style="font-size:11px;background:#A78BFA;color:#fff;padding:1px 8px;border-radius:10px;margin-left:6px">今天</span>' : '';
-  
-  return `<div class="${cls}">
-    <div class="learn-course-icon">${icon}</div>
-    <div class="learn-course-body">
-      <div class="learn-course-name">${escHtml(c.name)}${todayBadge}</div>
-      <div class="learn-course-meta">
-        <span class="platform-tag">${escHtml(c.platform || '其他')}</span>
-        <span>${nextStr}</span>
-      </div>
-    </div>
-    <div class="learn-course-actions">
-      ${linkBtn}
-      <button class="learn-course-btn edit" onclick="event.stopPropagation();editCourse('${c.id}')" title="编辑">✎</button>
-      <button class="learn-course-btn del" onclick="event.stopPropagation();deleteCourse('${c.id}')" title="删除">✕</button>
-    </div>
-  </div>`;
-}
-
-function toggleCourseForm(courseId) {
-  const form = document.getElementById('learnForm');
-  form.classList.toggle('show');
-  if (form.classList.contains('show')) {
-    _editCourseId = courseId || null;
-    if (courseId) {
-      const courses = getCourses();
-      const c = courses.find(x => x.id === courseId);
-      if (c) {
-        document.getElementById('courseName').value = c.name || '';
-        document.getElementById('coursePlatform').value = c.platform || '';
-        document.getElementById('courseNextDate').value = c.nextDate || '';
-        document.getElementById('courseNextTime').value = c.nextTime || '19:30';
-        document.getElementById('courseLink').value = c.link || '';
-      }
-    } else {
-      document.getElementById('courseName').value = '';
-      document.getElementById('coursePlatform').value = '';
-      document.getElementById('courseNextDate').value = '';
-      document.getElementById('courseNextTime').value = '19:30';
-      document.getElementById('courseLink').value = '';
+  let html = '';
+  weekDays.forEach((d, i) => {
+    const dateStr = fmtDate(d);
+    const isToday = dateStr === todayStr;
+    const isFri = d.getDay() === 5;
+    const cls = isToday ? 'learn-day today' : (isFri ? 'learn-day fri' : 'learn-day');
+    
+    // Find courses on this day
+    const dayCourses = COURSE_DATA.filter(c => c.date === dateStr);
+    
+    let coursesHtml = '';
+    if (dayCourses.length > 1) {
+      // Multiple courses - show conflict
+      dayCourses.forEach(c => {
+        const { dot, label } = getCourseColor(c.course);
+        coursesHtml += `<div class="learn-day-dot ${dot}">${label}:${c.label}</div>`;
+      });
+      coursesHtml += '<div class="learn-conflict">⚠ 冲突</div>';
+    } else if (dayCourses.length === 1) {
+      const c = dayCourses[0];
+      const { dot, label } = getCourseColor(c.course);
+      coursesHtml += `<div class="learn-day-dot ${dot}">${c.label}</div>`;
+    } else if (isFri) {
+      coursesHtml += '<div class="learn-day-rest">休息</div>';
     }
-  }
-}
 
-function saveCourse() {
-  const name = document.getElementById('courseName').value.trim();
-  if (!name) { alert('请输入课程名称'); return; }
+    html += `<div class="${cls}">
+      <div class="learn-day-header">周${dayNames[i]}</div>
+      <div class="learn-day-date">${d.getDate()}</div>
+      <div class="learn-day-courses">${coursesHtml || ''}</div>
+    </div>`;
+  });
   
-  const courses = getCourses();
-  const data = {
-    id: _editCourseId || 'c' + Date.now(),
-    name,
-    platform: document.getElementById('coursePlatform').value.trim(),
-    nextDate: document.getElementById('courseNextDate').value,
-    nextTime: document.getElementById('courseNextTime').value,
-    link: document.getElementById('courseLink').value.trim()
-  };
-  
-  if (_editCourseId) {
-    const idx = courses.findIndex(c => c.id === _editCourseId);
-    if (idx >= 0) courses[idx] = data;
-  } else {
-    courses.push(data);
-  }
-  
-  saveCourses(courses);
-  _editCourseId = null;
-  document.getElementById('learnForm').classList.remove('show');
-  renderLearnPage();
+  document.getElementById('learnCal').innerHTML = html;
+
+  // Legend
+  document.getElementById('learnLegend').innerHTML = `
+    <div class="learn-legend-item"><span class="learn-legend-dot l1"></span>服饰设计</div>
+    <div class="learn-legend-item"><span class="learn-legend-dot l2"></span>色彩课（周五休）</div>
+    <div class="learn-legend-item"><span class="learn-legend-dot l3"></span>千变少女打卡</div>
+  `;
 }
 
-function editCourse(id) {
-  toggleCourseForm(id);
-}
+function learnPrevWeek() { _learnWeekOffset--; renderLearnPage(); }
+function learnNextWeek() { _learnWeekOffset++; renderLearnPage(); }
+function learnGoToday() { _learnWeekOffset = 0; renderLearnPage(); }
 
-function deleteCourse(id) {
-  if (!confirm('确定删除这门课程？')) return;
-  const courses = getCourses().filter(c => c.id !== id);
-  saveCourses(courses);
-  renderLearnPage();
-}
-
-function openCourseLink(link) {
-  window.open(link, '_blank');
-}
-
-function formatDateShort(dateStr) {
-  if (!dateStr) return '';
-  const [y, m, d] = dateStr.split('-').map(Number);
-  return `${m}月${d}日`;
-}
-
-function escHtml(s) {
-  if (!s) return '';
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function escAttr(s) {
-  if (!s) return '';
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+// ===== Render =====
 
 // ===== Render =====
 function renderAll() {
