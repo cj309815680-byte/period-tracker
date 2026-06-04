@@ -135,11 +135,6 @@ body {
 .today-course-detail {
   font-size: 12px; color: #888;
 }
-.today-courses-none {
-  font-size: 12px; color: #aaa; text-align: center;
-  padding: 4px 0;
-}
-
 .reminder-card {
   border-radius: 14px;
   padding: 14px 16px;
@@ -182,7 +177,6 @@ body {
 }
 .reminder-badge.urgent { background: #FEE2E2; color: #DC2626; }
 .reminder-badge.normal { background: #EEF2FF; color: #4F46E5; }
-.reminder-badge.good { background: #D1FAE5; color: #059669; }
 
 /* Action reminder with check button */
 .reminder-action {
@@ -409,7 +403,6 @@ body {
 .learn-day.today {
   border-color: #A78BFA; background: #FAF5FF;
 }
-.learn-day-rest { opacity: 0.5; }
 
 .learn-day-num {
   font-size: 12px; font-weight: 600; color: #333;
@@ -421,14 +414,11 @@ body {
 
 .learn-day-course {
   font-size: 10px; line-height: 1.4;
-  text-align: center; color: #666;
+  text-align: center; color: #666; font-weight: 500;
   padding: 1px 0;
   overflow: hidden; text-overflow: ellipsis;
   white-space: nowrap;
 }
-.learn-day-course.c1 { font-weight: 500; }
-.learn-day-course.c2 { font-weight: 500; }
-.learn-day-course.c3 { font-weight: 500; }
 
 .learn-day-label {
   font-size: 9px; color: #bbb; text-align: center;
@@ -706,36 +696,6 @@ body {
   .fab:active { transform: scale(0.92); }
 }
 
-/* ===== Settings icon ===== */
-.header-bar {
-  padding: 14px 16px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.app-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.icon-btn {
-  width: 34px; height: 34px;
-  border: none; background: #f0f0f0;
-  border-radius: 10px; font-size: 16px;
-  cursor: pointer; color: #666;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-}
-
-.icon-btn:active { background: #ddd; }
-
 /* ===== Bottom Sheet ===== */
 .overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -912,6 +872,7 @@ body {
         <button class="strip-nav-btn" onclick="prevMonth()">◀</button>
         <button class="strip-nav-btn" onclick="goToday()">●</button>
         <button class="strip-nav-btn" onclick="nextMonth()">▶</button>
+        <button class="strip-nav-btn" onclick="openSettings()" title="周期设置">⚙</button>
       </div>
     </div>
     <div class="mini-cal" id="miniCal"></div>
@@ -1278,8 +1239,6 @@ function renderTodayCourses() {
     return;
   }
 
-  const courseNames = { c1: '服设', c2: '色彩', c3: '少女' };
-  const courseTags = { c1: '服饰设计', c2: '色彩课', c3: '千变少女' };
   
   el.innerHTML = `
     <div class="today-courses-header">
@@ -1288,8 +1247,8 @@ function renderTodayCourses() {
     </div>
     ${courses.map(c => `
       <div class="today-course-item">
-        <span class="today-course-tag">${courseTags[c.course]}</span>
-        <span class="today-course-name">${courseNames[c.course]}</span>
+        <span class="today-course-tag">${COURSE_TAGS[c.course]}</span>
+        <span class="today-course-name">${COURSE_NAMES[c.course]}</span>
         <span class="today-course-detail">${c.label}</span>
       </div>
     `).join('')}
@@ -1307,9 +1266,8 @@ function renderTodaySummary(data) {
 
   if (s.lastPeriodStart) {
     const p = getPhase(data);
-    const phaseNames = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
     if (p) {
-      rows.push({ label: '当前阶段', val: phaseNames[p.phase] + ' · 第' + p.day + '天' });
+      rows.push({ label: '当前阶段', val: PHASE_NAMES[p.phase] + ' · 第' + p.day + '天' });
     }
   }
 
@@ -1401,9 +1359,6 @@ function saveExpense() {
   if (!data.expenses) data.expenses = {};
   if (!data.expenses[today]) data.expenses[today] = [];
   data.expenses[today].push({ amount, category: selectedCat, note });
-
-  _data = data;
-  localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
   saveLocal(data);
 
   // Reset form
@@ -1543,8 +1498,6 @@ function deleteExpenseItem(date, idx) {
   if (!data.expenses || !data.expenses[date]) return;
   data.expenses[date].splice(idx, 1);
   if (data.expenses[date].length === 0) delete data.expenses[date];
-  _data = data;
-  localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
   saveLocal(data);
   renderExpensePage();
   renderExpenseStats();
@@ -1650,11 +1603,6 @@ async function loadCatData() {
   return null;
 }
 
-async function refreshCatData() {
-  _catData = await loadCatData();
-  renderToday();
-}
-
 async function syncCatData() {
   const btn = document.getElementById('catSyncBtn');
   const orig = btn.textContent;
@@ -1684,6 +1632,10 @@ function daysInMonth(y,m) { return new Date(y,m+1,0).getDate(); }
 function dayName(dow) { return ['日','一','二','三','四','五','六'][dow]; }
 function diffDays(d1,d2) { return Math.floor((new Date(d2)-new Date(d1))/(86400000)); }
 function prevDay(d) { const dt=new Date(d); dt.setDate(dt.getDate()-1); return fmt(dt.getFullYear(),dt.getMonth(),dt.getDate()); }
+
+const PHASE_NAMES = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
+const COURSE_NAMES = { c1: '服设', c2: '色彩', c3: '少女' };
+const COURSE_TAGS = { c1: '服饰设计', c2: '色彩课', c3: '千变少女' };
 
 const MOOD_MAP = {
   happy:'😊', neutral:'😐', sad:'😢', anxious:'😰',
@@ -1908,11 +1860,10 @@ function renderLearnPage() {
 
 function renderDayCell(dayNum, extraCls, dateStr, todayStr) {
   const dayCourses = COURSE_DATA.filter(c => c.date === dateStr);
-  const courseNames = { c1: '服设', c2: '色彩', c3: '少女' };
   
   let coursesHtml = '';
   dayCourses.forEach(c => {
-    coursesHtml += `<div class="learn-day-course ${c.course}">${courseNames[c.course]}</div>`;
+    coursesHtml += `<div class="learn-day-course ${c.course}">${COURSE_NAMES[c.course]}</div>`;
     coursesHtml += `<div class="learn-day-label">${c.label}</div>`;
   });
 
@@ -1940,7 +1891,6 @@ function learnGoThisMonth() {
 
 // ===== Render =====
 
-// ===== Render =====
 function renderAll() {
   renderToday();
   renderPhaseBar();
@@ -1961,9 +1911,8 @@ function renderPhaseBar() {
   }
   bar.className = 'phase-bar ' + p.phase;
   const emoji = { menses:'🩸', follicular:'🌱', ovulation:'✨', luteal:'🌙' };
-  const text = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
   document.getElementById('phaseEmoji').textContent = emoji[p.phase];
-  document.getElementById('phaseText').textContent = text[p.phase];
+  document.getElementById('phaseText').textContent = PHASE_NAMES[p.phase];
   document.getElementById('phaseDay').textContent = p.detail;
 }
 
@@ -2030,9 +1979,7 @@ function renderDiary() {
   const list = document.getElementById('diaryList');
   const empty = document.getElementById('emptyDiary');
 
-  // Get all dates this month that have records, sorted newest first
-  const start = fmt(currentYear, currentMonth, 1);
-  const end = fmt(currentYear, currentMonth, daysInMonth(currentYear, currentMonth));
+  // Collect records for current month, sorted newest first
   const records = [];
 
   for (const [ds, rec] of Object.entries(data.records)) {
@@ -2055,7 +2002,6 @@ function renderDiary() {
   empty.style.display = 'none';
 
   let html = '';
-  const phaseNames = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
   const flowLabels = { light:'少量', medium:'中等', heavy:'偏多' };
 
   for (const { ds, rec } of records) {
@@ -2067,7 +2013,7 @@ function renderDiary() {
     html += '<div class="entry-header">';
     html += `<span class="entry-date">${month+1}月${day}日 <span class="entry-weekday">周${dow}</span></span>`;
     if (info) {
-      html += `<span class="entry-phase-tag phase-tag-${info.phase}">${phaseNames[info.phase]}第${info.phaseDay}天</span>`;
+      html += `<span class="entry-phase-tag phase-tag-${info.phase}">${PHASE_NAMES[info.phase]}第${info.phaseDay}天</span>`;
     }
     html += '</div>';
 
