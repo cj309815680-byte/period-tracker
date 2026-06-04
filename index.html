@@ -102,6 +102,44 @@ body {
 
 .today-reminders { display: flex; flex-direction: column; gap: 8px; }
 
+/* Today courses card */
+.today-courses {
+  margin-bottom: 10px;
+  background: #FAF5FF;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.today-courses-header {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 8px;
+}
+.today-courses-icon { font-size: 16px; }
+.today-courses-title {
+  font-size: 13px; font-weight: 600; color: #6D28D9;
+}
+.today-course-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0;
+}
+.today-course-item + .today-course-item {
+  border-top: 1px solid #EDE9FE;
+}
+.today-course-name {
+  font-size: 13px; font-weight: 600; color: #333;
+}
+.today-course-tag {
+  font-size: 10px; background: #EDE9FE;
+  color: #7C3AED; padding: 1px 6px; border-radius: 4px;
+  font-weight: 500;
+}
+.today-course-detail {
+  font-size: 12px; color: #888;
+}
+.today-courses-none {
+  font-size: 12px; color: #aaa; text-align: center;
+  padding: 4px 0;
+}
+
 .reminder-card {
   border-radius: 14px;
   padding: 14px 16px;
@@ -818,6 +856,7 @@ body {
         <span class="today-ganzhi" id="todayGanZhi"></span>
       </div>
       <div class="today-reminders" id="todayReminders"></div>
+      <div class="today-courses" id="todayCourses" style="display:none"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
 
       <!-- Expense quick view -->
@@ -1215,7 +1254,37 @@ function renderToday() {
 
   // Summary
   renderTodaySummary(data);
+  renderTodayCourses();
   renderExpenseStats();
+}
+
+function renderTodayCourses() {
+  const today = getToday();
+  const courses = COURSE_DATA.filter(c => c.date === today);
+  const el = document.getElementById('todayCourses');
+  
+  if (courses.length === 0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  const courseNames = { c1: '服设', c2: '色彩', c3: '少女' };
+  const courseTags = { c1: '服饰设计', c2: '色彩课', c3: '千变少女' };
+  
+  el.innerHTML = `
+    <div class="today-courses-header">
+      <span class="today-courses-icon">📚</span>
+      <span class="today-courses-title">今日课程</span>
+    </div>
+    ${courses.map(c => `
+      <div class="today-course-item">
+        <span class="today-course-tag">${courseTags[c.course]}</span>
+        <span class="today-course-name">${courseNames[c.course]}</span>
+        <span class="today-course-detail">${c.label}</span>
+      </div>
+    `).join('')}
+  `;
+  el.style.display = 'block';
 }
 
 function renderTodaySummary(data) {
