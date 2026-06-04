@@ -438,6 +438,83 @@ body {
   border-radius: 8px; font-size: 14px; text-align: center;
 }
 .setting-input:focus { outline: none; border-color: #EC4899; }
+
+/* ===== Cat Care Section ===== */
+.cat-section { margin: 0 16px 14px; }
+.cat-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cat-section-title {
+  font-size: 15px; font-weight: 700; color: #1a1a1a;
+  display: flex; align-items: center; gap: 6px;
+}
+.cat-updated {
+  font-size: 11px; color: #bbb;
+}
+.cat-refresh-btn {
+  font-size: 11px; color: #6366F1; cursor: pointer;
+  background: none; border: none; font-weight: 600;
+  padding: 2px 8px; border-radius: 6px;
+}
+.cat-refresh-btn:active { background: #EEF2FF; }
+
+.cat-cards { display: flex; flex-direction: column; gap: 8px; }
+
+.cat-card {
+  background: #fafafa; border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: background 0.15s;
+}
+.cat-card.warn {
+  background: #FFF5F5;
+  border: 1px solid #FECACA;
+}
+
+.cat-card-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.cat-card-icon.litter { background: #EFF6FF; }
+.cat-card-icon.feeder { background: #FFFBEB; }
+.cat-card-icon.pet { background: #F0FDF4; }
+
+.cat-card-body { flex: 1; min-width: 0; }
+.cat-card-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 2px; }
+.cat-card-status { font-size: 12px; color: #888; line-height: 1.5; }
+.cat-card-status .ok { color: #10B981; }
+.cat-card-status .warn { color: #F59E0B; }
+.cat-card-status .alert { color: #EF4444; font-weight: 600; }
+.cat-card-status .dim { color: #bbb; }
+
+.cat-card-right { text-align: right; flex-shrink: 0; }
+.cat-progress {
+  width: 42px; height: 42px; position: relative;
+}
+.cat-progress-ring {
+  transform: rotate(-90deg);
+}
+.cat-progress-text {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 13px; font-weight: 700; color: #555;
+}
+
+.cat-pet-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid #f0f0f0;
+}
+.cat-pet-row:last-child { border-bottom: none; }
+.cat-pet-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #EFF6FF; display: flex; align-items: center;
+  justify-content: center; font-size: 16px;
+}
+.cat-pet-info { flex: 1; }
+.cat-pet-name { font-size: 13px; font-weight: 600; color: #333; }
+.cat-pet-detail { font-size: 11px; color: #999; margin-top: 1px; }
+.cat-pet-weight { font-size: 13px; font-weight: 600; color: #555; }
 </style>
 </head>
 <body>
@@ -469,6 +546,22 @@ body {
     </div>
   </div>
   <div class="mini-cal" id="miniCal"></div>
+
+  <!-- Cat Care Section -->
+  <div class="cat-section" id="catSection">
+    <div class="cat-section-header">
+      <span class="cat-section-title">🐱 猫猫</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="cat-updated" id="catUpdated"></span>
+        <button class="cat-refresh-btn" onclick="refreshCatData()">🔄</button>
+      </div>
+    </div>
+    <div class="cat-cards" id="catCards">
+      <div class="cat-card" style="justify-content:center;padding:20px;color:#ccc;font-size:13px">
+        正在加载猫咪数据...
+      </div>
+    </div>
+  </div>
 
   <!-- Diary Section -->
   <div class="section-divider">日记</div>
@@ -597,8 +690,10 @@ let selectedTags = [];
 
 // ===== Cloud Sync =====
 const GH_API = 'https://api.github.com/repos/cj309815680-byte/period-tracker/contents/data.json';
+const CAT_DATA_URL = 'https://cj309815680-byte.github.io/period-tracker/petkit_data.json';
 let ghSha = null;
 let _data = null;
+let _catData = null;
 
 function getToken() {
   return localStorage.getItem('xiaob_gh_token') || '';
@@ -646,44 +741,36 @@ async function syncFromCloud() {
   }
   showSync('loading', '从云端同步...');
   try {
-    // Use raw.githubusercontent.com for reading (no auth needed, no CORS issues)
-    const rawUrl = 'https://raw.githubusercontent.com/cj309815680-byte/period-tracker/main/data.json?t=' + Date.now();
-    const resp = await fetch(rawUrl, { cache: 'no-store' });
-    if (!resp.ok) {
-      // Fallback: try API for sha
+    // Read via GitHub Pages (no auth, no CORS issues)
+    const readUrl = 'https://cj309815680-byte.github.io/period-tracker/data.json?t=' + Date.now();
+    const resp = await fetch(readUrl, { cache: 'no-store' });
+    
+    // Get sha for future writes (via API)
+    let apiOk = false;
+    try {
       const apiResp = await fetch(GH_API, {
         headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
       });
-      if (apiResp.status === 404) {
-        _data = getData();
-        showSync('ok', '云端无数据，使用本地');
-        renderAll();
-        return;
+      if (apiResp.ok) {
+        const json = await apiResp.json();
+        ghSha = json.sha;
+        apiOk = true;
       }
-      if (!apiResp.ok) throw new Error('HTTP ' + apiResp.status);
-      const json = await apiResp.json();
-      ghSha = json.sha;
-      const content = decodeURIComponent(escape(atob(json.content)));
-      const data = JSON.parse(content);
-      _data = data;
-      localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
-      showSync('ok', '已同步');
+    } catch (apiErr) {
+      console.log('API sha fetch failed:', apiErr.message);
+    }
+    
+    if (!resp.ok) {
+      _data = getData();
+      showSync(apiOk ? 'ok' : 'error', apiOk ? '读取失败，使用本地' : '无法连接');
       renderAll();
       return;
     }
-    const data = await resp.json();
     
-    // Get sha for future writes
-    const apiResp = await fetch(GH_API, {
-      headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
-    });
-    if (apiResp.ok) {
-      const json = await apiResp.json();
-      ghSha = json.sha;
-    }
+    const data = await resp.json();
+    const localData = getData();
     
     // If cloud is empty but local has data, offer to upload
-    const localData = getData();
     if (Object.keys(data.records).length === 0 && Object.keys(localData.records).length > 0) {
       if (confirm('云端暂无数据，是否将本地记录上传到云端？')) {
         _data = localData;
@@ -701,7 +788,7 @@ async function syncFromCloud() {
     }
     renderAll();
   } catch (e) {
-    showSync('error', '同步失败：' + e.message);
+    showSync('error', '同步失败');
     console.log('Sync failed:', e);
     _data = getData();
     renderAll();
@@ -764,7 +851,150 @@ async function saveToCloud(data) {
   }
 }
 
-// ===== Helpers =====
+// ===== Cat Data =====
+async function loadCatData() {
+  // Try to fetch from GitHub Pages
+  try {
+    const resp = await fetch(CAT_DATA_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (resp.ok) {
+      const data = await resp.json();
+      localStorage.setItem('xiaob_catdata', JSON.stringify(data));
+      return data;
+    }
+  } catch(e) { console.log('Cat data fetch failed, using cache'); }
+  // Fallback to local cache
+  try {
+    const cached = localStorage.getItem('xiaob_catdata');
+    if (cached) return JSON.parse(cached);
+  } catch(e) {}
+  return null;
+}
+
+async function refreshCatData() {
+  _catData = await loadCatData();
+  renderCatSection();
+}
+
+function renderCatSection() {
+  const section = document.getElementById('catSection');
+  const cards = document.getElementById('catCards');
+  const updated = document.getElementById('catUpdated');
+  if (!_catData) {
+    updated.textContent = '';
+    cards.innerHTML = '<div class="cat-card" style="justify-content:center;padding:20px;color:#ccc;font-size:13px">暂无猫咪数据</div>';
+    return;
+  }
+
+  // Show update time
+  const ts = _catData.updated_at ? new Date(_catData.updated_at) : null;
+  updated.textContent = ts ? ts.toLocaleString('zh-CN', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+
+  let html = '';
+
+  // --- Litter Box Card ---
+  const lb = _catData.litter_box;
+  if (lb && lb.name) {
+    const alerts = [];
+    if (lb.box_full) alerts.push('<span class="alert">🚫 垃圾袋已满！</span>');
+    if (lb.sand_lack) alerts.push('<span class="alert">⚠️ 猫砂不足！</span>');
+    if (lb.error_msg) alerts.push('<span class="alert">⚠️ ' + lb.error_msg + '</span>');
+    
+    const sandColor = lb.sand_percent > 50 ? '#10B981' : lb.sand_percent > 20 ? '#F59E0B' : '#EF4444';
+    const ringOffset = 94.2 * (1 - lb.sand_percent / 100);
+    
+    html += '<div class="cat-card' + (alerts.length ? ' warn' : '') + '">';
+    html += '<div class="cat-card-icon litter">🚽</div>';
+    html += '<div class="cat-card-body">';
+    html += '<div class="cat-card-title">' + lb.name + '</div>';
+    html += '<div class="cat-card-status">';
+    if (alerts.length) {
+      html += alerts.join(' &nbsp;');
+    } else {
+      html += '今日如厕 <b>' + lb.today_times + '</b> 次 · ';
+      html += lb.box_full ? '<span class="alert">袋满</span>' : '<span class="ok">垃圾袋正常</span>';
+    }
+    // Pet out tips
+    if (lb.pet_out_tips && lb.pet_out_tips.length > 0) {
+      html += '<br>';
+      for (const tip of lb.pet_out_tips) {
+        if (tip.out_day > 0) {
+          html += '<span class="warn">🐱 ' + tip.pet_name + ' ' + tip.out_day + '天没上厕所</span> ';
+        }
+      }
+    }
+    html += '</div></div>';
+    html += '<div class="cat-card-right"><div class="cat-progress">';
+    html += '<svg width="42" height="42" viewBox="0 0 42 42" class="cat-progress-ring">';
+    html += '<circle cx="21" cy="21" r="15" fill="none" stroke="#e5e5e5" stroke-width="3"/>';
+    html += '<circle cx="21" cy="21" r="15" fill="none" stroke="' + sandColor + '" stroke-width="3" stroke-dasharray="94.2" stroke-dashoffset="' + ringOffset + '" stroke-linecap="round"/>';
+    html += '</svg>';
+    html += '<span class="cat-progress-text">' + lb.sand_percent + '%</span>';
+    html += '</div></div>';
+    html += '</div>';
+  }
+
+  // --- Feeder Card ---
+  const fd = _catData.feeder;
+  if (fd && fd.name) {
+    const foodMap = { 0: '已空', 1: '低', 2: '正常', 3: '满' };
+    const foodText = foodMap[fd.food] || '未知';
+    const foodClass = fd.food <= 1 ? 'alert' : fd.food === 2 ? 'ok' : 'ok';
+    
+    html += '<div class="cat-card' + (fd.food <= 1 ? ' warn' : '') + '">';
+    html += '<div class="cat-card-icon feeder">🍚</div>';
+    html += '<div class="cat-card-body">';
+    html += '<div class="cat-card-title">' + fd.name + '</div>';
+    html += '<div class="cat-card-status">';
+    html += '粮仓 <span class="' + foodClass + '">' + foodText + '</span>';
+    if (fd.desiccant_left_days <= 0) {
+      html += ' · <span class="warn">干燥剂需更换</span>';
+    }
+    // Recent feeding
+    const recentEats = (fd.eat_records || []).filter(r => r.time);
+    if (recentEats.length > 0) {
+      const latest = recentEats[recentEats.length - 1];
+      html += '<br>最近进食: ' + latest.time;
+      if (latest.pet_name) html += ' (' + latest.pet_name + ')';
+    }
+    // Next feed plan
+    const plans = (fd.feed_plan || []).filter(p => p.enabled);
+    if (plans.length > 0) {
+      html += '<br><span class="dim">计划: ' + plans.map(p => p.name + ' ' + p.time).join(' · ') + '</span>';
+    }
+    html += '</div></div>';
+    html += '</div>';
+  }
+
+  // --- Pets Card ---
+  const pets = _catData.pets || [];
+  if (pets.length > 0) {
+    html += '<div class="cat-card" style="flex-direction:column;align-items:stretch;padding:14px 16px;">';
+    html += '<div class="cat-card-title" style="margin-bottom:8px">🐈 猫咪</div>';
+    for (const pet of pets) {
+      html += '<div class="cat-pet-row">';
+      html += '<div class="cat-pet-avatar">🐱</div>';
+      html += '<div class="cat-pet-info">';
+      html += '<div class="cat-pet-name">' + pet.name + '</div>';
+      html += '<div class="cat-pet-detail">';
+      if (pet.last_litter_time) {
+        html += '最后如厕 ' + pet.last_litter_time;
+      } else {
+        html += '<span class="dim">暂无如厕记录</span>';
+      }
+      html += '</div></div>';
+      html += '<div class="cat-pet-weight">';
+      if (pet.weight > 0) {
+        html += (pet.weight / 1000).toFixed(2) + 'kg';
+      } else {
+        html += '<span class="dim">--kg</span>';
+      }
+      html += '</div></div>';
+    }
+    html += '</div>';
+  }
+
+  cards.innerHTML = html;
+}
 function fmt(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 function parseDate(str) { const [y,m,d]=str.split('-').map(Number); return {year:y,month:m-1,day:d}; }
 function getToday() { const d=new Date(); return fmt(d.getFullYear(),d.getMonth(),d.getDate()); }
@@ -856,6 +1086,7 @@ function renderAll() {
   renderPhaseBar();
   renderMiniCal();
   renderDiary();
+  renderCatSection();
 }
 
 function renderPhaseBar() {
@@ -1189,6 +1420,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   renderAll();
+
+  // Load cat data
+  _catData = await loadCatData();
+  renderCatSection();
 
   // Auto-sync when tab becomes visible
   document.addEventListener('visibilitychange', () => {
