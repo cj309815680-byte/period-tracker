@@ -716,10 +716,6 @@ body {
   <!-- Header -->
   <div class="header-bar">
     <span class="app-title">小B</span>
-    <div class="header-actions">
-      <span id="syncStatus" style="font-size:11px;cursor:pointer;line-height:34px;margin-right:6px" title="点击刷新云端数据" onclick="syncFromCloud()">☁️</span>
-    
-    </div>
   </div>
 
   <!-- ===== Tab 1: 今日 ===== -->
@@ -1200,7 +1196,7 @@ function saveExpense() {
 
   _data = data;
   localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
-  saveToCloud(data);
+  saveLocal(data);
 
   // Reset form
   document.getElementById('expenseAmount').value = '';
@@ -1341,7 +1337,7 @@ function deleteExpenseItem(date, idx) {
   if (data.expenses[date].length === 0) delete data.expenses[date];
   _data = data;
   localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
-  saveToCloud(data);
+  saveLocal(data);
   renderExpensePage();
   renderExpenseStats();
 }
@@ -1358,29 +1354,9 @@ function expenseNextMonth() {
   renderExpensePage();
 }
 
-// ===== Cloud Sync =====
-const GH_API = 'https://api.github.com/repos/cj309815680-byte/period-tracker/contents/data.json';
 const CAT_DATA_URL = 'https://cj309815680-byte.github.io/period-tracker/petkit_data.json';
-let ghSha = null;
 let _data = null;
 let _catData = null;
-
-function getToken() {
-  return localStorage.getItem('xiaob_gh_token') || '';
-}
-function setToken(t) {
-  localStorage.setItem('xiaob_gh_token', t);
-}
-
-async function ensureToken() {
-  if (getToken()) return true;
-  const t = prompt('请输入 GitHub Token 以启用云端同步：\n（仅需输入一次，之后自动记住）');
-  if (t && t.trim()) {
-    setToken(t.trim());
-    return true;
-  }
-  return false;
-}
 
 function defaultData() {
   return { records: {}, expenses: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
@@ -1394,131 +1370,9 @@ function getData() {
   } catch (e) { return defaultData(); }
 }
 
-function showSync(status, text) {
-  const el = document.getElementById('syncStatus');
-  if (!el) return;
-  const icons = { loading: '⏳', ok: '☁️', error: '⚠️', saved: '✅' };
-  el.textContent = icons[status] || '☁️';
-  el.style.color = { loading: '#F59E0B', ok: '#ccc', error: '#e74c3c', saved: '#10B981' }[status] || '#ccc';
-  el.title = text || '';
-}
-
-async function syncFromCloud() {
-  const token = getToken();
-  if (!token) {
-    alert('请先输入 GitHub Token');
-    return;
-  }
-  showSync('loading', '从云端同步...');
-  try {
-    // Read via GitHub Pages (no auth, no CORS issues)
-    const readUrl = 'https://cj309815680-byte.github.io/period-tracker/data.json?t=' + Date.now();
-    const resp = await fetch(readUrl, { cache: 'no-store' });
-    
-    // Get sha for future writes (via API)
-    let apiOk = false;
-    try {
-      const apiResp = await fetch(GH_API, {
-        headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
-      });
-      if (apiResp.ok) {
-        const json = await apiResp.json();
-        ghSha = json.sha;
-        apiOk = true;
-      }
-    } catch (apiErr) {
-      console.log('API sha fetch failed:', apiErr.message);
-    }
-    
-    if (!resp.ok) {
-      _data = getData();
-      showSync(apiOk ? 'ok' : 'error', apiOk ? '读取失败，使用本地' : '无法连接');
-      renderAll();
-      return;
-    }
-    
-    const data = await resp.json();
-    const localData = getData();
-    
-    // If cloud is empty but local has data, offer to upload
-    if (Object.keys(data.records).length === 0 && Object.keys(localData.records).length > 0) {
-      if (confirm('云端暂无数据，是否将本地记录上传到云端？')) {
-        _data = localData;
-        saveToCloud(localData);
-        showSync('saved', '已上传到云端');
-        setTimeout(() => showSync('ok', '已同步'), 2000);
-      } else {
-        _data = data;
-      }
-    } else {
-      _data = data;
-      localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
-      showSync('saved', '已同步');
-      setTimeout(() => showSync('ok', '已同步'), 1500);
-    }
-    renderAll();
-  } catch (e) {
-    showSync('error', '同步失败');
-    console.log('Sync failed:', e);
-    _data = getData();
-    renderAll();
-  }
-}
-
-async function saveToCloud(data) {
+function saveLocal(data) {
   _data = data;
   localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
-  const token = getToken();
-  if (!token) return;
-  showSync('loading', '保存中...');
-  try {
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 0))));
-    const payload = { message: 'update bodylog data', content: content, branch: 'main' };
-    if (ghSha) payload.sha = ghSha;
-    const resp = await fetch(GH_API, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
-      },
-      body: JSON.stringify(payload)
-    });
-    if (resp.ok) {
-      const json = await resp.json();
-      ghSha = json.content.sha;
-      showSync('saved', '已保存到云端');
-      setTimeout(() => showSync('ok', '已同步'), 2000);
-    } else if (resp.status === 409 || resp.status === 422) {
-      // Conflict or sha mismatch: re-fetch and retry
-      const refresh = await fetch(GH_API, {
-        headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
-      });
-      if (refresh.ok) {
-        const rj = await refresh.json();
-        ghSha = rj.sha;
-        payload.sha = ghSha;
-        const retry = await fetch(GH_API, {
-          method: 'PUT',
-          headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (retry.ok) {
-          const rj2 = await retry.json();
-          ghSha = rj2.content.sha;
-          showSync('saved', '已保存到云端');
-          setTimeout(() => showSync('ok', '已同步'), 2000);
-        } else {
-          showSync('error', '保存失败，请刷新重试');
-        }
-      }
-    } else {
-      showSync('error', '保存失败（' + resp.status + '）');
-    }
-  } catch (e) {
-    console.log('Cloud save failed:', e.message);
-    showSync('error', '离线保存');
-  }
 }
 
 // ===== Cat Data =====
@@ -1545,108 +1399,6 @@ async function refreshCatData() {
   renderToday();
 }
 
-// ===== Trigger GitHub Action to sync cat data =====
-let _syncTimer = null;
-let _catAutoSyncTimer = null;
-async function syncCatData() {
-  const token = getToken();
-  if (!token) {
-    alert('请先设置 GitHub Token（用于同步）');
-    return;
-  }
-  
-  const btn = document.getElementById('catSyncBtn');
-  btn.textContent = '⏳ 触发中...';
-  btn.style.color = '#F59E0B';
-  btn.disabled = true;
-  
-  try {
-    // Trigger the GitHub Actions workflow
-    const resp = await fetch('https://api.github.com/repos/cj309815680-byte/period-tracker/actions/workflows/update-petkit.yml/dispatches', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Accept': 'application/vnd.github+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ ref: 'main' })
-    });
-    
-    if (resp.ok) {
-      btn.textContent = '⏳ 等待更新...';
-      btn.style.color = '#60A5FA';
-      
-      // Poll for updates (every 5 seconds, up to 1 minute)
-      let tries = 0;
-      const oldUpdated = _catData ? _catData.updated_at : null;
-      
-      if (_syncTimer) clearInterval(_syncTimer);
-      _syncTimer = setInterval(async () => {
-        tries++;
-        const data = await loadCatData();
-        if (data && data.updated_at !== oldUpdated) {
-          // Data updated!
-          clearInterval(_syncTimer);
-          _syncTimer = null;
-          _catData = data;
-          renderToday();
-          btn.textContent = '✅ 已同步';
-          btn.style.color = '#10B981';
-          btn.disabled = false;
-          setTimeout(() => {
-            btn.textContent = '🔄 同步猫猫数据';
-            btn.style.color = '#6366F1';
-          }, 3000);
-        } else if (tries >= 12) {
-          // Timeout after 1 minute
-          clearInterval(_syncTimer);
-          _syncTimer = null;
-          _catData = await loadCatData();
-          renderToday();
-          btn.textContent = '🔄 同步猫猫数据';
-          btn.style.color = '#6366F1';
-          btn.disabled = false;
-        }
-      }, 5000);
-    } else {
-      throw new Error('HTTP ' + resp.status);
-    }
-  } catch(e) {
-    btn.textContent = '🔄 同步猫猫数据';
-    btn.style.color = '#6366F1';
-    btn.disabled = false;
-    alert('触发失败: ' + e.message + '\n\n请确认：\n1. workflow 文件已创建\n2. Token 有 repo 权限');
-  }
-}
-
-// Silent auto-sync: no button animation, no alert on failure
-async function autoSyncCatData() {
-  const token = getToken();
-  if (!token) return;
-  
-  try {
-    await fetch('https://api.github.com/repos/cj309815680-byte/period-tracker/actions/workflows/update-petkit.yml/dispatches', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Accept': 'application/vnd.github+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ ref: 'main' })
-    });
-    
-    // Wait 30 seconds then silently update
-    await new Promise(r => setTimeout(r, 30000));
-    const data = await loadCatData();
-    if (data) {
-      _catData = data;
-      renderToday();
-    }
-  } catch(e) {
-    // Silent fail — it's just a periodic check
-    console.log('Auto cat sync failed:', e.message);
-  }
-}
 
 function fmt(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 function parseDate(str) { const [y,m,d]=str.split('-').map(Number); return {year:y,month:m-1,day:d}; }
@@ -1993,7 +1745,7 @@ function saveRecord() {
     };
   }
 
-  saveToCloud(data);
+  saveLocal(data);
   document.getElementById('overlay').classList.remove('active');
   renderAll();
 }
@@ -2017,7 +1769,7 @@ function deleteRecord() {
     }
     data.settings.lastPeriodStart = found || '';
   }
-  saveToCloud(data);
+  saveLocal(data);
   document.getElementById('overlay').classList.remove('active');
   renderAll();
 }
@@ -2058,7 +1810,7 @@ function saveSettings() {
   data.settings.cycleLength = parseInt(document.getElementById('cycleLength').value) || 28;
   data.settings.periodLength = parseInt(document.getElementById('periodLength').value) || 5;
   data.settings.lastPeriodStart = document.getElementById('lastPeriodStart').value;
-  saveToCloud(data);
+  saveLocal(data);
   closeSettings();
   renderAll();
 }
@@ -2067,7 +1819,7 @@ function clearAll() {
   if (!confirm('确定要清空所有记录吗？不可撤销！')) return;
   _data = defaultData();
   localStorage.removeItem('xiaob_bodylog_v2');
-  saveToCloud(_data);
+  saveLocal(_data);
   closeSettings();
   renderAll();
 }
@@ -2078,20 +1830,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const [y,m] = today.split('-').map(Number);
   currentYear = y; currentMonth = m - 1;
 
-  const token = getToken();
-  if (token) {
-    await syncFromCloud();
-  } else {
-    _data = getData();
-    // Ask for token
-    const t = prompt('首次使用云端同步，请输入 GitHub Token：\n\n（生成方式：GitHub → Settings → Developer settings → Personal access tokens → Generate new token，勾选 repo 权限）\n\n留空则仅使用本地存储。');
-    if (t && t.trim()) {
-      setToken(t.trim());
-      await syncFromCloud();
-    } else {
-      showSync('ok', '本地模式');
-    }
-  }
+  _data = getData();
   
   // Load cat data
   _catData = await loadCatData();
@@ -2099,20 +1838,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Render everything
   renderAll();
 
-  // Auto-sync cat data every 4 hours
-  if (getToken()) {
-    // First auto-sync after 2 minutes (let initial load settle)
-    setTimeout(() => autoSyncCatData(), 2 * 60 * 1000);
-    // Then every 4 hours
-    _catAutoSyncTimer = setInterval(() => autoSyncCatData(), 4 * 60 * 60 * 1000);
-  }
-
-  // Auto-sync when tab becomes visible
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && getToken()) {
-      syncFromCloud();
-    }
+  // Refresh cat data when tab becomes visible
+  document.addEventListener('visibilitychange', async () => {
     if (!document.hidden) {
+      _catData = await loadCatData();
       renderToday();
     }
   });
