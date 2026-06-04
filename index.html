@@ -150,6 +150,83 @@ body {
 .today-summary-label { color: #888; }
 .today-summary-val { color: #333; font-weight: 500; }
 
+/* ===== Expense tracker ===== */
+.expense-section {
+  margin-top: 16px;
+}
+
+.expense-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.expense-title {
+  font-size: 13px; font-weight: 600; color: #999;
+}
+.expense-add-btn {
+  background: #EC4899; color: #fff; border: none;
+  border-radius: 16px; padding: 5px 14px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+
+.expense-stats {
+  display: flex; gap: 12px; margin-bottom: 10px;
+}
+.expense-stat {
+  flex: 1; background: #fafafa; border-radius: 12px;
+  padding: 12px; text-align: center;
+}
+.expense-stat-amount {
+  font-size: 22px; font-weight: 700; color: #333;
+}
+.expense-stat-amount .yen { font-size: 14px; font-weight: 400; }
+.expense-stat-label {
+  font-size: 11px; color: #999; margin-top: 2px;
+}
+
+.expense-form {
+  display: none; background: #fff; border-radius: 14px;
+  border: 1px solid #eee; padding: 14px;
+  margin-bottom: 10px;
+}
+.expense-form.show { display: block; }
+
+.expense-form-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.expense-form-row:last-child { margin-bottom: 0; }
+
+.expense-amount {
+  flex: 1; border: 1px solid #e5e5e5; border-radius: 10px;
+  padding: 10px 14px; font-size: 18px; font-weight: 600;
+  outline: none; font-family: inherit;
+}
+.expense-amount:focus { border-color: #EC4899; }
+
+.expense-cats {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.expense-cat {
+  padding: 6px 12px; border-radius: 16px; border: 1px solid #e5e5e5;
+  background: #fff; font-size: 12px; cursor: pointer;
+  transition: all 0.15s;
+}
+.expense-cat:hover { border-color: #EC4899; }
+.expense-cat.selected {
+  background: #FDF2F8; border-color: #EC4899; color: #EC4899; font-weight: 600;
+}
+
+.expense-note {
+  flex: 1; border: 1px solid #e5e5e5; border-radius: 10px;
+  padding: 10px 14px; font-size: 14px; outline: none; font-family: inherit;
+}
+.expense-note:focus { border-color: #EC4899; }
+
+.expense-save {
+  width: 100%; padding: 10px; border: none; border-radius: 10px;
+  background: #EC4899; color: #fff; font-size: 15px; font-weight: 600;
+  cursor: pointer;
+}
+
 /* ===== Top: Phase Bar ===== */
 .phase-bar {
   margin: 14px 16px;
@@ -663,6 +740,38 @@ body {
       <div class="today-weekday" id="todayWeekday"></div>
       <div class="today-reminders" id="todayReminders"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
+
+      <!-- Expense -->
+      <div class="expense-section" id="expenseSection">
+        <div class="expense-header">
+          <span class="expense-title">💰 今日记账</span>
+          <button class="expense-add-btn" onclick="toggleExpenseForm()">+ 记一笔</button>
+        </div>
+        <div class="expense-stats">
+          <div class="expense-stat">
+            <div class="expense-stat-amount"><span class="yen">¥</span><span id="todayExpense">0</span></div>
+            <div class="expense-stat-label">今日</div>
+          </div>
+          <div class="expense-stat">
+            <div class="expense-stat-amount"><span class="yen">¥</span><span id="monthExpense">0</span></div>
+            <div class="expense-stat-label">本月</div>
+          </div>
+        </div>
+        <div class="expense-form" id="expenseForm">
+          <div class="expense-form-row">
+            <input type="number" class="expense-amount" id="expenseAmount" placeholder="金额" step="0.01" min="0" inputmode="decimal">
+          </div>
+          <div class="expense-form-row">
+            <div class="expense-cats" id="expenseCats"></div>
+          </div>
+          <div class="expense-form-row">
+            <input type="text" class="expense-note" id="expenseNote" placeholder="备注（选填）" maxlength="30">
+          </div>
+          <div class="expense-form-row">
+            <button class="expense-save" onclick="saveExpense()">保存</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1011,6 +1120,7 @@ function renderToday() {
 
   // Summary
   renderTodaySummary(data);
+  renderExpenseStats();
 }
 
 function renderTodaySummary(data) {
@@ -1067,6 +1177,108 @@ function renderDiaryTab() {
   renderDiary();
 }
 
+// ===== Expense Tracking =====
+const EXPENSE_CATS = [
+  { key: '餐饮', emoji: '🍜' },
+  { key: '交通', emoji: '🚗' },
+  { key: '购物', emoji: '🛒' },
+  { key: '娱乐', emoji: '🎮' },
+  { key: '日用', emoji: '🏠' },
+  { key: '其他', emoji: '💰' }
+];
+let selectedCat = null;
+
+function toggleExpenseForm() {
+  const form = document.getElementById('expenseForm');
+  form.classList.toggle('show');
+  if (form.classList.contains('show')) {
+    document.getElementById('expenseAmount').focus();
+    if (!document.getElementById('expenseCats').children.length) renderExpenseCats();
+  }
+}
+
+function renderExpenseCats() {
+  document.getElementById('expenseCats').innerHTML = EXPENSE_CATS.map(c =>
+    `<span class="expense-cat" onclick="selectCat('${c.key}', this)">${c.emoji} ${c.key}</span>`
+  ).join('');
+  selectedCat = null;
+}
+
+function selectCat(key, el) {
+  document.querySelectorAll('.expense-cat').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = key;
+}
+
+function saveExpense() {
+  const amountStr = document.getElementById('expenseAmount').value;
+  const note = document.getElementById('expenseNote').value.trim();
+  if (!amountStr || parseFloat(amountStr) <= 0) {
+    document.getElementById('expenseAmount').focus();
+    return;
+  }
+  if (!selectedCat) {
+    alert('请选择一个分类');
+    return;
+  }
+  const amount = Math.round(parseFloat(amountStr) * 100) / 100;
+  const today = getToday();
+
+  const data = getData();
+  if (!data.expenses) data.expenses = {};
+  if (!data.expenses[today]) data.expenses[today] = [];
+  data.expenses[today].push({ amount, category: selectedCat, note });
+
+  _data = data;
+  localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+  saveToCloud(data);
+
+  // Reset form
+  document.getElementById('expenseAmount').value = '';
+  document.getElementById('expenseNote').value = '';
+  selectedCat = null;
+  document.querySelectorAll('.expense-cat').forEach(c => c.classList.remove('selected'));
+  document.getElementById('expenseForm').classList.remove('show');
+
+  renderExpenseStats();
+  renderTodaySummary(getData());
+}
+
+function renderExpenseStats() {
+  const data = getData();
+  const today = getToday();
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  let todayTotal = 0;
+  let monthTotal = 0;
+
+  if (data.expenses) {
+    for (const [date, items] of Object.entries(data.expenses)) {
+      for (const item of items) {
+        if (date === today) todayTotal += item.amount;
+        if (date.startsWith(currentMonth)) monthTotal += item.amount;
+      }
+    }
+  }
+
+  document.getElementById('todayExpense').textContent = todayTotal.toFixed(2);
+  document.getElementById('monthExpense').textContent = monthTotal.toFixed(2);
+}
+
+function renderExpenseToday(data) {
+  const today = getToday();
+  const items = data.expenses ? data.expenses[today] : null;
+  if (!items || items.length === 0) return '';
+
+  const catEmoji = {};
+  EXPENSE_CATS.forEach(c => catEmoji[c.key] = c.emoji);
+
+  return '<div style="margin-top:8px;font-size:12px;color:#aaa">' +
+    items.map(i => `${catEmoji[i.category] || ''}${i.category} ¥${i.amount.toFixed(2)}${i.note ? ' · ' + i.note : ''}`).join('<br>') +
+    '</div>';
+}
+
 // ===== Cloud Sync =====
 const GH_API = 'https://api.github.com/repos/cj309815680-byte/period-tracker/contents/data.json';
 const CAT_DATA_URL = 'https://cj309815680-byte.github.io/period-tracker/petkit_data.json';
@@ -1092,7 +1304,7 @@ async function ensureToken() {
 }
 
 function defaultData() {
-  return { records: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
+  return { records: {}, expenses: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
 }
 
 function getData() {
