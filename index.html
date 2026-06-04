@@ -1125,22 +1125,58 @@ function clearAll() {
 
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', async () => {
-  // Try cloud load first
-  const token = getToken();
-  if (token) {
-    await loadFromCloud();
-  } else {
-    _data = getData();
-    // Prompt for token once
-    const t = prompt('首次使用云端同步，请输入 GitHub Token：\n\n（可在 GitHub → Settings → Developer settings → Personal access tokens 生成，勾选 repo 权限）\n\n跳过则仅使用本地存储。');
-    if (t && t.trim()) {
-      setToken(t.trim());
-      await loadFromCloud();
-    }
-  }
   const today = getToday();
   const [y,m] = today.split('-').map(Number);
   currentYear = y; currentMonth = m - 1;
+
+  const token = getToken();
+  if (token) {
+    // Try cloud load
+    try {
+      const resp = await fetch(GH_API, {
+        headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
+      });
+      if (resp.ok) {
+        const json = await resp.json();
+        ghSha = json.sha;
+        const cloudData = JSON.parse(decodeURIComponent(escape(atob(json.content))));
+        const localData = getData();
+        // Merge: if cloud has records, use cloud. If not, use local (and upload local to cloud)
+        if (Object.keys(cloudData.records).length > 0) {
+          _data = cloudData;
+          localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(cloudData));
+          showSync('ok', '已同步');
+        } else if (Object.keys(localData.records).length > 0) {
+          _data = localData;
+          showSync('ok', '已同步');
+          saveToCloud(localData); // upload local data to empty cloud
+        } else {
+          _data = cloudData;
+          showSync('ok', '已同步');
+        }
+      } else {
+        _data = getData();
+        showSync('error', '无法连接云端');
+      }
+    } catch (e) {
+      _data = getData();
+      showSync('error', '离线，使用本地缓存');
+    }
+  } else {
+    _data = getData();
+    // Prompt for token
+    const t = prompt('首次使用云端同步，请输入 GitHub Token：\n\n（可在 GitHub → Settings → Developer settings → Personal access tokens 生成，勾选 repo 权限）\n\n跳过则仅使用本地存储。');
+    if (t && t.trim()) {
+      setToken(t.trim());
+      // Upload existing local data to cloud
+      if (Object.keys(_data.records).length > 0) {
+        ghSha = null; // force create
+        saveToCloud(_data);
+      } else {
+        await loadFromCloud();
+      }
+    }
+  }
   renderAll();
 });
 </script>
