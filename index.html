@@ -965,7 +965,7 @@ function renderToday() {
   // 日柱
   const gz = getDayGanZhi(today);
   document.getElementById('todayGanZhi').innerHTML = 
-    `${gz.ganZhi}日 · ${gz.element}` + (gz.isAuspicious ? ` <span class="gz-auspicious">吉</span>` : '');
+    `${gz.ganZhi}日 · ${gz.stem}${gz.stemEl} + ${gz.branch}${gz.branchEl}` + (gz.isAuspicious ? ` <span class="gz-auspicious">吉</span>` : '');
 
   let reminders = [];
   const s = data.settings;
@@ -1424,6 +1424,8 @@ function getDayGanZhi(dateStr) {
   const STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
   const BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
   const EL = { '甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水' };
+  // 地支五行: 寅卯木 巳午火 申酉金 亥子水 辰戌丑未土
+  const BEL = { '寅':'木','卯':'木','巳':'火','午':'火','申':'金','酉':'金','亥':'水','子':'水','辰':'土','戌':'土','丑':'土','未':'土' };
   const ref = Date.UTC(1900, 0, 1);
   const [y,m,d] = dateStr.split('-').map(Number);
   const target = Date.UTC(y, m-1, d);
@@ -1431,11 +1433,14 @@ function getDayGanZhi(dateStr) {
   const idx = ((10 + daysDiff) % 60 + 60) % 60;
   const stem = STEMS[idx % 10];
   const branch = BRANCHES[idx % 12];
-  const element = EL[stem];
+  const stemEl = EL[stem];
+  const branchEl = BEL[branch];
   return {
     ganZhi: stem + branch,
-    stem, branch, element,
-    isAuspicious: element === '土' || element === '金'
+    stem, branch,
+    stemEl, branchEl,
+    element: stemEl,
+    isAuspicious: stemEl === '土' || stemEl === '金'
   };
 }
 
