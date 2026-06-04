@@ -22,7 +22,133 @@ body {
   background: #fff;
   min-height: 100vh;
   position: relative;
+  padding-bottom: 64px;
 }
+
+/* ===== Tab Panels ===== */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== Bottom Tab Bar ===== */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  z-index: 200;
+}
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 20px;
+  cursor: pointer;
+  color: #999;
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-item .tab-icon { font-size: 22px; }
+.tab-item.active { color: #EC4899; font-weight: 600; }
+
+/* ===== Today Dashboard ===== */
+.today-container { padding: 0 16px 20px; }
+
+.today-date {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+.today-weekday {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 18px;
+}
+
+.today-reminders { display: flex; flex-direction: column; gap: 8px; }
+
+.reminder-card {
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fafafa;
+}
+.reminder-card.warn {
+  background: #FFF5F5;
+  border: 1px solid #FECACA;
+}
+.reminder-card.info {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+}
+.reminder-card.ok {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+}
+
+.reminder-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.reminder-icon.period { background: #FDF2F8; }
+.reminder-icon.litter { background: #EFF6FF; }
+.reminder-icon.food { background: #FFFBEB; }
+.reminder-icon.calendar { background: #F5F3FF; }
+
+.reminder-body { flex: 1; min-width: 0; }
+.reminder-title { font-size: 14px; font-weight: 600; color: #333; }
+.reminder-desc { font-size: 12px; color: #888; margin-top: 2px; line-height: 1.4; }
+
+.reminder-badge {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+}
+.reminder-badge.urgent { background: #FEE2E2; color: #DC2626; }
+.reminder-badge.normal { background: #EEF2FF; color: #4F46E5; }
+.reminder-badge.good { background: #D1FAE5; color: #059669; }
+
+/* No reminders */
+.today-empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+/* Overview summary */
+.today-summary {
+  margin-top: 16px;
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.today-summary-title {
+  font-size: 13px; font-weight: 600; color: #999;
+  margin-bottom: 10px;
+}
+.today-summary-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+.today-summary-row:last-child { border-bottom: none; }
+.today-summary-label { color: #888; }
+.today-summary-val { color: #333; font-weight: 500; }
 
 /* ===== Top: Phase Bar ===== */
 .phase-bar {
@@ -128,7 +254,7 @@ body {
 
 /* ===== Diary Entry Card ===== */
 .diary-list {
-  padding: 0 16px 80px;
+  padding: 0 16px 20px;
 }
 
 .entry-card {
@@ -261,7 +387,7 @@ body {
 /* ===== Floating Action Button ===== */
 .fab {
   position: fixed;
-  bottom: 24px;
+  bottom: 80px;
   right: 50%;
   transform: translateX(210px);
   width: 56px;
@@ -289,6 +415,7 @@ body {
   .fab {
     right: 16px;
     transform: none;
+    bottom: 76px;
   }
   .fab:active { transform: scale(0.92); }
 }
@@ -522,59 +649,87 @@ body {
 
   <!-- Header -->
   <div class="header-bar">
-    <span class="app-title">📓 身体日记</span>
+    <span class="app-title">小B</span>
     <div class="header-actions">
       <span id="syncStatus" style="font-size:11px;cursor:pointer;line-height:34px;margin-right:6px" title="点击刷新云端数据" onclick="syncFromCloud()">☁️</span>
       <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
     </div>
   </div>
 
-  <!-- Phase Bar -->
-  <div class="phase-bar unknown" id="phaseBar">
-    <span class="bar-emoji" id="phaseEmoji">📅</span>
-    <span id="phaseText">请先设置经期日期</span>
-    <span class="bar-detail" id="phaseDay"></span>
-  </div>
-
-  <!-- Mini Month Strip -->
-  <div class="month-strip">
-    <span class="month-strip-label" id="monthStripLabel">2026年6月</span>
-    <div class="month-strip-nav">
-      <button class="strip-nav-btn" onclick="prevMonth()">◀</button>
-      <button class="strip-nav-btn" onclick="goToday()">●</button>
-      <button class="strip-nav-btn" onclick="nextMonth()">▶</button>
+  <!-- ===== Tab 1: 今日 ===== -->
+  <div class="tab-panel active" id="panel-today">
+    <div class="today-container" id="todayContainer">
+      <div class="today-date" id="todayDate"></div>
+      <div class="today-weekday" id="todayWeekday"></div>
+      <div class="today-reminders" id="todayReminders"></div>
+      <div class="today-summary" id="todaySummary" style="display:none"></div>
     </div>
   </div>
-  <div class="mini-cal" id="miniCal"></div>
 
-  <!-- Cat Care Section -->
-  <div class="cat-section" id="catSection">
-    <div class="cat-section-header">
-      <span class="cat-section-title">🐱 猫猫</span>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="cat-updated" id="catUpdated"></span>
-        <button class="cat-refresh-btn" id="catSyncBtn" onclick="syncCatData()">🔄 同步</button>
+  <!-- ===== Tab 2: 生理期日记 ===== -->
+  <div class="tab-panel" id="panel-diary">
+    <!-- Phase Bar -->
+    <div class="phase-bar unknown" id="phaseBar">
+      <span class="bar-emoji" id="phaseEmoji">📅</span>
+      <span id="phaseText">请先设置经期日期</span>
+      <span class="bar-detail" id="phaseDay"></span>
+    </div>
+
+    <!-- Mini Month Strip -->
+    <div class="month-strip">
+      <span class="month-strip-label" id="monthStripLabel">2026年6月</span>
+      <div class="month-strip-nav">
+        <button class="strip-nav-btn" onclick="prevMonth()">◀</button>
+        <button class="strip-nav-btn" onclick="goToday()">●</button>
+        <button class="strip-nav-btn" onclick="nextMonth()">▶</button>
       </div>
     </div>
-    <div class="cat-cards" id="catCards">
-      <div class="cat-card" style="justify-content:center;padding:20px;color:#ccc;font-size:13px">
-        正在加载猫咪数据...
+    <div class="mini-cal" id="miniCal"></div>
+
+    <!-- Diary Section -->
+    <div class="section-divider">日记</div>
+    <div class="diary-list" id="diaryList">
+      <div class="empty-diary" id="emptyDiary">
+        <div class="empty-emoji">📝</div>
+        <div class="empty-text">还没有记录</div>
+        <div class="empty-sub">点右下角 ✏️ 记下今天的状态</div>
+      </div>
+    </div>
+
+    <!-- FAB (only visible when diary tab is active) -->
+    <button class="fab" onclick="openRecordSheet(getToday())">✏️</button>
+  </div>
+
+  <!-- ===== Tab 3: 猫猫 ===== -->
+  <div class="tab-panel" id="panel-cat">
+    <div class="cat-section" id="catSection" style="margin-top:14px">
+      <div class="cat-section-header">
+        <span class="cat-section-title">🐱 猫猫</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="cat-updated" id="catUpdated"></span>
+          <button class="cat-refresh-btn" id="catSyncBtn" onclick="syncCatData()">🔄 同步</button>
+        </div>
+      </div>
+      <div class="cat-cards" id="catCards">
+        <div class="cat-card" style="justify-content:center;padding:20px;color:#ccc;font-size:13px">
+          正在加载猫咪数据...
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Diary Section -->
-  <div class="section-divider">日记</div>
-  <div class="diary-list" id="diaryList">
-    <div class="empty-diary" id="emptyDiary">
-      <div class="empty-emoji">📝</div>
-      <div class="empty-text">还没有记录</div>
-      <div class="empty-sub">点右下角 ✏️ 记下今天的状态</div>
+  <!-- ===== Bottom Tab Bar ===== -->
+  <div class="tab-bar">
+    <div class="tab-item active" data-tab="today" onclick="switchTab('today')">
+      <span class="tab-icon">🏠</span>今日
+    </div>
+    <div class="tab-item" data-tab="diary" onclick="switchTab('diary')">
+      <span class="tab-icon">📓</span>日记
+    </div>
+    <div class="tab-item" data-tab="cat" onclick="switchTab('cat')">
+      <span class="tab-icon">🐱</span>猫猫
     </div>
   </div>
-
-  <!-- FAB -->
-  <button class="fab" onclick="openRecordSheet(getToday())">✏️</button>
 </div>
 
 <!-- Bottom Sheet -->
@@ -687,6 +842,230 @@ let currentDate = null;
 let selectedFlow = 'none';
 let selectedMood = null;
 let selectedTags = [];
+let currentTab = 'today';
+
+// ===== Tab Switching =====
+function switchTab(tab) {
+  currentTab = tab;
+  // Update panels
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  // Update tab bar
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab-item[data-tab="' + tab + '"]').classList.add('active');
+  // Refresh relevant content
+  if (tab === 'today') renderToday();
+  if (tab === 'diary') renderDiaryTab();
+  if (tab === 'cat') refreshCatData();
+}
+
+// ===== Today Dashboard =====
+function renderToday() {
+  const data = getData();
+  const today = getToday();
+  const { year, month, day } = parseDate(today);
+  const dow = dayName(new Date(year, month, day).getDay());
+
+  document.getElementById('todayDate').textContent = `${month+1}月${day}日`;
+  document.getElementById('todayWeekday').textContent = `周${dow}`;
+
+  let reminders = [];
+  const s = data.settings;
+
+  // 1. Period coming reminder
+  if (s.lastPeriodStart) {
+    const nextPeriod = new Date(s.lastPeriodStart);
+    nextPeriod.setDate(nextPeriod.getDate() + s.cycleLength);
+    const nextPeriodStr = fmt(nextPeriod.getFullYear(), nextPeriod.getMonth(), nextPeriod.getDate());
+    const daysUntil = diffDays(today, nextPeriodStr);
+    
+    if (daysUntil <= 0) {
+      // Already in period or late
+      const phase = getPhase(data);
+      if (phase && phase.phase === 'menses') {
+        reminders.push({
+          icon: '🩸', iconClass: 'period',
+          title: '正在经期中',
+          desc: `${phase.detail}`,
+          badge: '进行中', badgeClass: 'urgent'
+        });
+      }
+    } else if (daysUntil <= 2) {
+      reminders.push({
+        icon: '📅', iconClass: 'period',
+        title: '经期即将到来',
+        desc: `预计 ${daysUntil} 天后来姨妈，提前做好准备哦`,
+        badge: `${daysUntil}天后`, badgeClass: 'urgent'
+      });
+    } else if (daysUntil <= 5) {
+      reminders.push({
+        icon: '📅', iconClass: 'period',
+        title: '经期临近',
+        desc: `预计 ${daysUntil} 天后，注意经前症状`,
+        badge: `${daysUntil}天后`, badgeClass: 'normal'
+      });
+    }
+  } else {
+    reminders.push({
+      icon: '⚙️', iconClass: 'calendar',
+      title: '设置经期信息',
+      desc: '点击右上角设置，记录经期日期以便提醒',
+      badge: '待设置', badgeClass: 'normal'
+    });
+  }
+
+  // 2. Cat reminders
+  if (_catData) {
+    const lb = _catData.litter_box;
+    const fd = _catData.feeder;
+
+    // Litter box
+    if (lb && lb.box_full) {
+      reminders.push({
+        icon: '🚫', iconClass: 'litter',
+        title: '猫砂盆垃圾袋已满！',
+        desc: `「${lb.name}」需要尽快清理`,
+        badge: '紧急', badgeClass: 'urgent'
+      });
+    } else if (lb && lb.sand_lack) {
+      reminders.push({
+        icon: '⚠️', iconClass: 'litter',
+        title: '猫砂不足',
+        desc: `「${lb.name}」剩余 ${lb.sand_percent}%，需要添加猫砂`,
+        badge: '注意', badgeClass: 'urgent'
+      });
+    } else if (lb && lb.sand_percent <= 30) {
+      reminders.push({
+        icon: '🪣', iconClass: 'litter',
+        title: '猫砂即将用完',
+        desc: `「${lb.name}」剩余 ${lb.sand_percent}%，建议提前准备`,
+        badge: '提醒', badgeClass: 'normal'
+      });
+    }
+
+    // Feeder
+    if (fd && fd.food <= 0) {
+      reminders.push({
+        icon: '🍚', iconClass: 'food',
+        title: '猫粮已空！',
+        desc: `「${fd.name}」需要立即加粮`,
+        badge: '紧急', badgeClass: 'urgent'
+      });
+    } else if (fd && fd.food === 1) {
+      reminders.push({
+        icon: '🍚', iconClass: 'food',
+        title: '猫粮偏低',
+        desc: `「${fd.name}」余量不足，建议尽快加粮`,
+        badge: '注意', badgeClass: 'urgent'
+      });
+    }
+
+    // Desiccant
+    if (fd && fd.desiccant_left_days !== undefined && fd.desiccant_left_days <= 0) {
+      reminders.push({
+        icon: '💧', iconClass: 'food',
+        title: '干燥剂需更换',
+        desc: `「${fd.name}」干燥剂已到期`,
+        badge: '提醒', badgeClass: 'urgent'
+      });
+    }
+
+    // Pet out tips (cat hasn't used litter box)
+    if (lb && lb.pet_out_tips) {
+      for (const tip of lb.pet_out_tips) {
+        if (tip.out_day > 0) {
+          reminders.push({
+            icon: '🐱', iconClass: 'litter',
+            title: `${tip.pet_name} 没上厕所`,
+            desc: `已 ${tip.out_day} 天没有使用猫砂盆，需要关注`,
+            badge: '注意', badgeClass: 'urgent'
+          });
+        }
+      }
+    }
+  }
+
+  // Render reminders
+  const container = document.getElementById('todayReminders');
+  if (reminders.length === 0) {
+    container.innerHTML = '<div class="today-empty">✨ 一切正常，今天没什么需要操心的</div>';
+  } else {
+    // Sort: urgent first
+    const badgeOrder = { '紧急': 0, '注意': 1, '提醒': 2, '进行中': 0 };
+    reminders.sort((a, b) => (badgeOrder[a.badge] || 9) - (badgeOrder[b.badge] || 9));
+    
+    container.innerHTML = reminders.map(r => {
+      let cardClass = 'reminder-card';
+      if (r.badgeClass === 'urgent') cardClass += ' warn';
+      else if (r.badgeClass === 'normal') cardClass += ' info';
+      return `<div class="${cardClass}">
+        <div class="reminder-icon ${r.iconClass}">${r.icon}</div>
+        <div class="reminder-body">
+          <div class="reminder-title">${r.title}</div>
+          <div class="reminder-desc">${r.desc}</div>
+        </div>
+        <span class="reminder-badge ${r.badgeClass}">${r.badge}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Summary
+  renderTodaySummary(data);
+}
+
+function renderTodaySummary(data) {
+  const el = document.getElementById('todaySummary');
+  let html = '<div class="today-summary-title">📊 状态概览</div>';
+  let rows = [];
+
+  const s = data.settings;
+  const today = getToday();
+
+  if (s.lastPeriodStart) {
+    const p = getPhase(data);
+    const phaseNames = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
+    if (p) {
+      rows.push({ label: '当前阶段', val: phaseNames[p.phase] + ' · 第' + p.day + '天' });
+      const nextPeriod = new Date(s.lastPeriodStart);
+      nextPeriod.setDate(nextPeriod.getDate() + s.cycleLength);
+      const nextStr = fmt(nextPeriod.getFullYear(), nextPeriod.getMonth(), nextPeriod.getDate());
+      const daysUntil = diffDays(today, nextStr);
+      if (daysUntil > 0) {
+        rows.push({ label: '距下次经期', val: daysUntil + ' 天' });
+      }
+    }
+    rows.push({ label: '周期', val: s.cycleLength + '天 · 经期' + s.periodLength + '天' });
+  }
+
+  if (_catData) {
+    const lb = _catData.litter_box;
+    const fd = _catData.feeder;
+    if (lb && lb.name) {
+      rows.push({ label: '猫砂余量', val: lb.sand_percent + '%' });
+      rows.push({ label: '今日如厕', val: lb.today_times + ' 次' });
+    }
+    if (fd && fd.name) {
+      const foodMap = { 0: '已空', 1: '偏低', 2: '正常', 3: '充足' };
+      rows.push({ label: '猫粮状态', val: foodMap[fd.food] || '未知' });
+    }
+  }
+
+  if (rows.length > 0) {
+    html += rows.map(r => 
+      `<div class="today-summary-row"><span class="today-summary-label">${r.label}</span><span class="today-summary-val">${r.val}</span></div>`
+    ).join('');
+    el.innerHTML = html;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function renderDiaryTab() {
+  renderPhaseBar();
+  renderMiniCal();
+  renderDiary();
+}
 
 // ===== Cloud Sync =====
 const GH_API = 'https://api.github.com/repos/cj309815680-byte/period-tracker/contents/data.json';
@@ -873,6 +1252,7 @@ async function loadCatData() {
 async function refreshCatData() {
   _catData = await loadCatData();
   renderCatSection();
+  renderToday();
 }
 
 // ===== Trigger GitHub Action to sync cat data =====
@@ -919,6 +1299,7 @@ async function syncCatData() {
           _syncTimer = null;
           _catData = data;
           renderCatSection();
+          renderToday();
           btn.textContent = '✅ 已同步';
           btn.style.color = '#10B981';
           btn.disabled = false;
@@ -932,6 +1313,7 @@ async function syncCatData() {
           _syncTimer = null;
           _catData = await loadCatData();
           renderCatSection();
+          renderToday();
           btn.textContent = '🔄 同步';
           btn.style.color = '#6366F1';
           btn.disabled = false;
@@ -1156,6 +1538,7 @@ function getPhaseInfo(data, dateStr) {
 
 // ===== Render =====
 function renderAll() {
+  renderToday();
   renderPhaseBar();
   renderMiniCal();
   renderDiary();
@@ -1492,16 +1875,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       showSync('ok', '本地模式');
     }
   }
-  renderAll();
-
+  
   // Load cat data
   _catData = await loadCatData();
-  renderCatSection();
+
+  // Render everything
+  renderAll();
 
   // Auto-sync when tab becomes visible
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && getToken()) {
       syncFromCloud();
+    }
+    if (!document.hidden) {
+      renderToday();
     }
   });
 });
