@@ -447,6 +447,7 @@ body {
   <div class="header-bar">
     <span class="app-title">📓 身体日记</span>
     <div class="header-actions">
+      <span id="syncStatus" style="font-size:11px;color:#ccc;line-height:34px;margin-right:4px">☁️</span>
       <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
     </div>
   </div>
@@ -594,17 +595,129 @@ let selectedFlow = 'none';
 let selectedMood = null;
 let selectedTags = [];
 
-// ===== Data =====
-function loadData() {
+// ===== Cloud Sync =====
+const GH_API = 'https://api.github.com/repos/cj309815680-byte/period-tracker/contents/data.json';
+let ghSha = null;
+let _data = null;
+
+function getToken() {
+  return localStorage.getItem('xiaob_gh_token') || '';
+}
+function setToken(t) {
+  localStorage.setItem('xiaob_gh_token', t);
+}
+
+async function ensureToken() {
+  if (getToken()) return true;
+  const t = prompt('请输入 GitHub Token 以启用云端同步：\n（仅需输入一次，之后自动记住）');
+  if (t && t.trim()) {
+    setToken(t.trim());
+    return true;
+  }
+  return false;
+}
+
+function defaultData() {
+  return { records: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
+}
+
+function getData() {
+  if (_data) return _data;
   try {
     const d = localStorage.getItem('xiaob_bodylog_v2');
-    return d ? JSON.parse(d) : { records: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
+    return d ? JSON.parse(d) : defaultData();
+  } catch (e) { return defaultData(); }
+}
+
+function showSync(status, text) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  const icons = { loading: '⏳', ok: '☁️', error: '⚠️', saved: '✅' };
+  el.textContent = icons[status] || '☁️';
+  el.style.color = { loading: '#F59E0B', ok: '#ccc', error: '#e74c3c', saved: '#10B981' }[status] || '#ccc';
+  el.title = text || '';
+}
+
+async function loadFromCloud() {
+  const token = getToken();
+  if (!token) {
+    _data = getData();
+    return _data;
+  }
+  showSync('loading', '同步中...');
+  try {
+    const resp = await fetch(GH_API, {
+      headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    ghSha = json.sha;
+    const content = decodeURIComponent(escape(atob(json.content)));
+    const data = JSON.parse(content);
+    _data = data;
+    localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+    showSync('ok', '已同步');
+    return data;
   } catch (e) {
-    return { records: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
+    console.log('Cloud load failed, using local cache:', e.message);
+    showSync('error', '离线，使用本地缓存');
+    _data = getData();
+    return _data;
   }
 }
-function saveData(data) { localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data)); }
-function getData() { return loadData(); }
+
+async function saveToCloud(data) {
+  // Always save locally first (instant)
+  _data = data;
+  localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+  const token = getToken();
+  if (!token) return;
+  showSync('loading', '保存中...');
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 0))));
+    const payload = { message: 'update bodylog data', content: content, branch: 'main' };
+    if (ghSha) payload.sha = ghSha;
+    const resp = await fetch(GH_API, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (resp.ok) {
+      const json = await resp.json();
+      ghSha = json.content.sha;
+      showSync('saved', '已保存到云端');
+      setTimeout(() => showSync('ok', '已同步'), 2000);
+    } else if (resp.status === 422) {
+      // Conflict: re-fetch and retry
+      const refresh = await fetch(GH_API, {
+        headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
+      });
+      if (refresh.ok) {
+        const rj = await refresh.json();
+        ghSha = rj.sha;
+        payload.sha = ghSha;
+        const retry = await fetch(GH_API, {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (retry.ok) {
+          const rj2 = await retry.json();
+          ghSha = rj2.content.sha;
+          showSync('saved', '已保存到云端');
+          setTimeout(() => showSync('ok', '已同步'), 2000);
+        }
+      }
+    }
+  } catch (e) {
+    console.log('Cloud save failed:', e.message);
+    showSync('error', '离线保存');
+  }
+}
 
 // ===== Helpers =====
 function fmt(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
@@ -931,7 +1044,7 @@ function saveRecord() {
     };
   }
 
-  saveData(data);
+  saveToCloud(data);
   document.getElementById('overlay').classList.remove('active');
   renderAll();
 }
@@ -955,7 +1068,7 @@ function deleteRecord() {
     }
     data.settings.lastPeriodStart = found || '';
   }
-  saveData(data);
+  saveToCloud(data);
   document.getElementById('overlay').classList.remove('active');
   renderAll();
 }
@@ -996,20 +1109,35 @@ function saveSettings() {
   data.settings.cycleLength = parseInt(document.getElementById('cycleLength').value) || 28;
   data.settings.periodLength = parseInt(document.getElementById('periodLength').value) || 5;
   data.settings.lastPeriodStart = document.getElementById('lastPeriodStart').value;
-  saveData(data);
+  saveToCloud(data);
   closeSettings();
   renderAll();
 }
 
 function clearAll() {
   if (!confirm('确定要清空所有记录吗？不可撤销！')) return;
+  _data = defaultData();
   localStorage.removeItem('xiaob_bodylog_v2');
+  saveToCloud(_data);
   closeSettings();
   renderAll();
 }
 
 // ===== Init =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Try cloud load first
+  const token = getToken();
+  if (token) {
+    await loadFromCloud();
+  } else {
+    _data = getData();
+    // Prompt for token once
+    const t = prompt('首次使用云端同步，请输入 GitHub Token：\n\n（可在 GitHub → Settings → Developer settings → Personal access tokens 生成，勾选 repo 权限）\n\n跳过则仅使用本地存储。');
+    if (t && t.trim()) {
+      setToken(t.trim());
+      await loadFromCloud();
+    }
+  }
   const today = getToday();
   const [y,m] = today.split('-').map(Number);
   currentYear = y; currentMonth = m - 1;
