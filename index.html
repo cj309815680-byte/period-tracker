@@ -447,7 +447,7 @@ body {
   <div class="header-bar">
     <span class="app-title">📓 身体日记</span>
     <div class="header-actions">
-      <span id="syncStatus" style="font-size:11px;color:#ccc;line-height:34px;margin-right:4px">☁️</span>
+      <span id="syncStatus" style="font-size:11px;cursor:pointer;line-height:34px;margin-right:6px" title="点击刷新云端数据" onclick="syncFromCloud()">☁️</span>
       <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
     </div>
   </div>
@@ -638,36 +638,57 @@ function showSync(status, text) {
   el.title = text || '';
 }
 
-async function loadFromCloud() {
+async function syncFromCloud() {
   const token = getToken();
   if (!token) {
-    _data = getData();
-    return _data;
+    alert('请先输入 GitHub Token');
+    return;
   }
-  showSync('loading', '同步中...');
+  showSync('loading', '从云端同步...');
   try {
     const resp = await fetch(GH_API, {
       headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
     });
+    if (resp.status === 404) {
+      // File doesn't exist yet, use local data
+      _data = getData();
+      showSync('ok', '云端无数据，使用本地');
+      renderAll();
+      return;
+    }
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const json = await resp.json();
     ghSha = json.sha;
     const content = decodeURIComponent(escape(atob(json.content)));
     const data = JSON.parse(content);
-    _data = data;
-    localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
-    showSync('ok', '已同步');
-    return data;
+    
+    // If cloud is empty but local has data, offer to upload
+    const localData = getData();
+    if (Object.keys(data.records).length === 0 && Object.keys(localData.records).length > 0) {
+      if (confirm('云端暂无数据，是否将本地记录上传到云端？')) {
+        _data = localData;
+        saveToCloud(localData);
+        showSync('saved', '已上传到云端');
+        setTimeout(() => showSync('ok', '已同步'), 2000);
+      } else {
+        _data = data;
+      }
+    } else {
+      _data = data;
+      localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+      showSync('saved', '已同步');
+      setTimeout(() => showSync('ok', '已同步'), 1500);
+    }
+    renderAll();
   } catch (e) {
-    console.log('Cloud load failed, using local cache:', e.message);
-    showSync('error', '离线，使用本地缓存');
+    showSync('error', '同步失败');
+    console.log('Sync failed:', e.message);
     _data = getData();
-    return _data;
+    renderAll();
   }
 }
 
 async function saveToCloud(data) {
-  // Always save locally first (instant)
   _data = data;
   localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
   const token = getToken();
@@ -691,8 +712,8 @@ async function saveToCloud(data) {
       ghSha = json.content.sha;
       showSync('saved', '已保存到云端');
       setTimeout(() => showSync('ok', '已同步'), 2000);
-    } else if (resp.status === 422) {
-      // Conflict: re-fetch and retry
+    } else if (resp.status === 409 || resp.status === 422) {
+      // Conflict or sha mismatch: re-fetch and retry
       const refresh = await fetch(GH_API, {
         headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
       });
@@ -710,8 +731,12 @@ async function saveToCloud(data) {
           ghSha = rj2.content.sha;
           showSync('saved', '已保存到云端');
           setTimeout(() => showSync('ok', '已同步'), 2000);
+        } else {
+          showSync('error', '保存失败，请刷新重试');
         }
       }
+    } else {
+      showSync('error', '保存失败（' + resp.status + '）');
     }
   } catch (e) {
     console.log('Cloud save failed:', e.message);
@@ -1131,54 +1156,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const token = getToken();
   if (token) {
-    // Try cloud load
-    try {
-      const resp = await fetch(GH_API, {
-        headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
-      });
-      if (resp.ok) {
-        const json = await resp.json();
-        ghSha = json.sha;
-        const cloudData = JSON.parse(decodeURIComponent(escape(atob(json.content))));
-        const localData = getData();
-        // Merge: if cloud has records, use cloud. If not, use local (and upload local to cloud)
-        if (Object.keys(cloudData.records).length > 0) {
-          _data = cloudData;
-          localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(cloudData));
-          showSync('ok', '已同步');
-        } else if (Object.keys(localData.records).length > 0) {
-          _data = localData;
-          showSync('ok', '已同步');
-          saveToCloud(localData); // upload local data to empty cloud
-        } else {
-          _data = cloudData;
-          showSync('ok', '已同步');
-        }
-      } else {
-        _data = getData();
-        showSync('error', '无法连接云端');
-      }
-    } catch (e) {
-      _data = getData();
-      showSync('error', '离线，使用本地缓存');
-    }
+    await syncFromCloud();
   } else {
     _data = getData();
-    // Prompt for token
-    const t = prompt('首次使用云端同步，请输入 GitHub Token：\n\n（可在 GitHub → Settings → Developer settings → Personal access tokens 生成，勾选 repo 权限）\n\n跳过则仅使用本地存储。');
+    // Ask for token
+    const t = prompt('首次使用云端同步，请输入 GitHub Token：\n\n（生成方式：GitHub → Settings → Developer settings → Personal access tokens → Generate new token，勾选 repo 权限）\n\n留空则仅使用本地存储。');
     if (t && t.trim()) {
       setToken(t.trim());
-      // Upload existing local data to cloud
-      if (Object.keys(_data.records).length > 0) {
-        ghSha = null; // force create
-        saveToCloud(_data);
-      } else {
-        await loadFromCloud();
-      }
+      await syncFromCloud();
+    } else {
+      showSync('ok', '本地模式');
     }
   }
   renderAll();
+
+  // Auto-sync when tab becomes visible
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && getToken()) {
+      syncFromCloud();
+    }
+  });
 });
+
 </script>
 </body>
 </html>
