@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>小B - 身体日记</title>
+<title>身体日记</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -145,6 +145,22 @@ body {
 .reminder-badge.urgent { background: #FEE2E2; color: #DC2626; }
 .reminder-badge.normal { background: #EEF2FF; color: #4F46E5; }
 .reminder-badge.good { background: #D1FAE5; color: #059669; }
+
+/* Action reminder with check button */
+.reminder-action {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid #D1D5DB;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 15px; color: #D1D5DB;
+  transition: all 0.15s;
+  user-select: none;
+}
+.reminder-action:hover { border-color: #10B981; color: #10B981; background: #ECFDF5; }
+.reminder-action:active { transform: scale(0.88); }
 
 /* No reminders */
 .today-empty {
@@ -1064,14 +1080,18 @@ function renderToday() {
 
   // Render reminders
   const container = document.getElementById('todayReminders');
-  if (reminders.length === 0) {
+  // Action reminders (吃药 + 身体记录)
+  const actions = getActionReminders();
+
+  if (reminders.length === 0 && actions.length === 0) {
     container.innerHTML = '<div class="today-empty">✨ 一切正常，今天没什么需要操心的</div>';
   } else {
+    let html = '';
     // Sort: urgent first
     const badgeOrder = { '紧急': 0, '注意': 1, '提醒': 2, '进行中': 0 };
     reminders.sort((a, b) => (badgeOrder[a.badge] || 9) - (badgeOrder[b.badge] || 9));
     
-    container.innerHTML = reminders.map(r => {
+    html += reminders.map(r => {
       let cardClass = 'reminder-card';
       if (r.badgeClass === 'urgent') cardClass += ' warn';
       else if (r.badgeClass === 'normal') cardClass += ' info';
@@ -1084,6 +1104,19 @@ function renderToday() {
         <span class="reminder-badge ${r.badgeClass}">${r.badge}</span>
       </div>`;
     }).join('');
+
+    html += actions.map(a => `
+      <div class="reminder-card ok" style="cursor:default">
+        <div class="reminder-icon ${a.iconClass}">${a.icon}</div>
+        <div class="reminder-body">
+          <div class="reminder-title">${a.title}</div>
+          <div class="reminder-desc">${a.desc}</div>
+        </div>
+        <div class="reminder-action" onclick="event.stopPropagation();markReminderDone('${a.key}')" title="点击完成">✓</div>
+      </div>
+    `).join('');
+
+    container.innerHTML = html;
   }
 
   // Summary
@@ -1375,6 +1408,47 @@ function getData() {
 function saveLocal(data) {
   _data = data;
   localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+}
+
+// ===== Daily Reminders (吃药 + 身体记录) =====
+const REMINDER_KEY = 'xiaob_reminders_v1';
+
+function getReminderState() {
+  try {
+    const raw = localStorage.getItem(REMINDER_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+function markReminderDone(key) {
+  const state = getReminderState();
+  const today = getToday();
+  if (!state[today]) state[today] = {};
+  state[today][key] = true;
+  // Keep only last 30 days
+  const keys = Object.keys(state).sort();
+  while (keys.length > 30) { delete state[keys.shift()]; }
+  localStorage.setItem(REMINDER_KEY, JSON.stringify(state));
+  renderToday();
+}
+
+function getActionReminders() {
+  const now = new Date();
+  const today = getToday();
+  const completed = getReminderState()[today] || {};
+  const h = now.getHours();
+  const actions = [];
+
+  if (h >= 10 && !completed.morning_med) {
+    actions.push({ key: 'morning_med', icon: '💊', title: '上午吃药', desc: '该吃上午的药啦', iconClass: 'food' });
+  }
+  if (h >= 22 && !completed.night_med) {
+    actions.push({ key: 'night_med', icon: '💊', title: '晚上吃药', desc: '睡前记得吃药', iconClass: 'period' });
+  }
+  if (h >= 22 && !completed.body_log) {
+    actions.push({ key: 'body_log', icon: '📝', title: '身体记录', desc: '记录一下今天的状态吧', iconClass: 'litter' });
+  }
+  return actions;
 }
 
 // ===== Cat Data =====
