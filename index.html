@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>小B - 身体日记</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== Top: Phase Bar ===== */
+.phase-bar {
+  margin: 14px 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.phase-bar .bar-emoji { font-size: 20px; }
+.phase-bar .bar-detail { font-size: 12px; opacity: 0.85; font-weight: 400; margin-left: auto; }
+
+.phase-bar.menses { background: linear-gradient(135deg, #F472B6, #EC4899); }
+.phase-bar.follicular { background: linear-gradient(135deg, #60A5FA, #3B82F6); }
+.phase-bar.ovulation { background: linear-gradient(135deg, #A78BFA, #8B5CF6); }
+.phase-bar.luteal { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+.phase-bar.unknown { background: #e5e5e5; color: #888; }
+
+/* ===== Mini Month Strip ===== */
+.month-strip {
+  margin: 0 16px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.month-strip-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.month-strip-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.strip-nav-btn {
+  width: 28px; height: 28px;
+  border: none; background: #f0f0f0;
+  border-radius: 8px; font-size: 12px;
+  cursor: pointer; color: #666;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.mini-cal {
+  margin: 0 16px 14px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.mini-cal .mini-dow {
+  color: #bbb;
+  font-weight: 600;
+  padding: 2px 0;
+}
+
+.mini-cal .mini-day {
+  padding: 5px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #aaa;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.mini-cal .mini-day.this-month { color: #555; }
+.mini-cal .mini-day.today { background: #FDF2F8; color: #EC4899; font-weight: 700; }
+.mini-cal .mini-day.has-record::after {
+  content: '';
+  display: block;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  margin: 2px auto 0;
+}
+
+.mini-cal .mini-day.has-period::after { background: #EC4899; }
+.mini-cal .mini-day.has-mood:not(.has-period)::after { background: #F59E0B; }
+.mini-cal .mini-day.has-tag:not(.has-period):not(.has-mood)::after { background: #60A5FA; }
+
+.mini-cal .mini-day.selected {
+  background: #EC4899;
+  color: #fff;
+}
+
+/* ===== Section Divider ===== */
+.section-divider {
+  margin: 0 16px 12px;
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Diary Entry Card ===== */
+.diary-list {
+  padding: 0 16px 80px;
+}
+
+.entry-card {
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.entry-card:active { background: #f0f0f0; }
+
+.entry-card .entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.entry-date {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.entry-weekday {
+  font-size: 12px;
+  color: #999;
+  font-weight: 400;
+}
+
+.entry-phase-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.phase-tag-menses { background: #EC4899; }
+.phase-tag-follicular { background: #3B82F6; }
+.phase-tag-ovulation { background: #8B5CF6; }
+.phase-tag-luteal { background: #F59E0B; }
+
+/* Period flow line */
+.entry-period {
+  font-size: 14px;
+  color: #EC4899;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #FDF2F8;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Mood display */
+.entry-mood-line {
+  font-size: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entry-mood-emoji {
+  font-size: 28px;
+}
+
+.entry-mood-text {
+  font-size: 15px;
+  color: #555;
+  font-weight: 600;
+}
+
+/* Body state tags */
+.entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.entry-tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #EEF2FF;
+  color: #4F46E5;
+  font-weight: 500;
+}
+
+/* Note */
+.entry-note {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* Prediction tip */
+.entry-prediction {
+  font-size: 12px;
+  color: #888;
+  padding: 6px 10px;
+  background: #fafafa;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 3px solid #ddd;
+}
+
+.entry-card:has(.phase-tag-menses) .entry-prediction { border-left-color: #EC4899; background: #FDF2F8; color: #BE185D; }
+.entry-card:has(.phase-tag-follicular) .entry-prediction { border-left-color: #3B82F6; background: #EFF6FF; color: #1D4ED8; }
+.entry-card:has(.phase-tag-ovulation) .entry-prediction { border-left-color: #8B5CF6; background: #F5F3FF; color: #6D28D9; }
+.entry-card:has(.phase-tag-luteal) .entry-prediction { border-left-color: #F59E0B; background: #FFFBEB; color: #B45309; }
+
+/* Empty diary */
+.empty-diary {
+  text-align: center;
+  padding: 60px 20px;
+  color: #ccc;
+}
+
+.empty-diary .empty-emoji { font-size: 48px; margin-bottom: 12px; }
+.empty-diary .empty-text { font-size: 15px; }
+.empty-diary .empty-sub { font-size: 13px; color: #ddd; margin-top: 6px; }
+
+/* ===== Floating Action Button ===== */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 50%;
+  transform: translateX(210px);
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: #EC4899;
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fab:active {
+  transform: translateX(210px) scale(0.92);
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+}
+
+@media (max-width: 420px) {
+  .fab {
+    right: 16px;
+    transform: none;
+  }
+  .fab:active { transform: scale(0.92); }
+}
+
+/* ===== Settings icon ===== */
+.header-bar {
+  padding: 14px 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 34px; height: 34px;
+  border: none; background: #f0f0f0;
+  border-radius: 10px; font-size: 16px;
+  cursor: pointer; color: #666;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+
+.icon-btn:active { background: #ddd; }
+
+/* ===== Bottom Sheet ===== */
+.overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3); z-index: 100;
+  display: none; align-items: flex-end; justify-content: center;
+}
+.overlay.active { display: flex; }
+
+.sheet {
+  background: #fff; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 420px; max-height: 85vh;
+  overflow-y: auto; padding: 8px 0 24px;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: #ddd; border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.sheet-header {
+  padding: 0 20px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.sheet-header h3 { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+
+.sheet-close {
+  width: 30px; height: 30px;
+  border: none; background: #f0f0f0;
+  border-radius: 15px; font-size: 16px;
+  cursor: pointer; color: #666;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.sheet-body { padding: 16px 20px; }
+
+.sheet-section { margin-bottom: 18px; }
+
+.sheet-label {
+  font-size: 12px; font-weight: 600; color: #aaa;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* Flow pills */
+.flow-row { display: flex; gap: 6px; }
+.flow-pill {
+  flex: 1; padding: 10px 6px;
+  border: 2px solid #eee; border-radius: 10px;
+  text-align: center; font-size: 12px; cursor: pointer;
+  transition: all 0.15s; color: #888; background: #fff;
+}
+.flow-pill .pill-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+.flow-pill.selected { border-color: #EC4899; background: #FDF2F8; color: #EC4899; font-weight: 600; }
+
+/* Mood grid */
+.mood-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.mood-btn {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 4px; border-radius: 12px; cursor: pointer;
+  border: 2px solid transparent; font-size: 12px; color: #888;
+  transition: all 0.15s;
+}
+.mood-btn .mood-emoji { font-size: 24px; margin-bottom: 2px; }
+.mood-btn.selected { border-color: #F472B6; background: #FDF2F8; color: #DB2777; font-weight: 600; }
+
+/* Tag chips */
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-chip {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px;
+  border: 1.5px solid #eee; cursor: pointer; color: #888;
+  transition: all 0.15s; background: #fff;
+}
+.tag-chip.selected { border-color: #6366F1; background: #EEF2FF; color: #4F46E5; font-weight: 600; }
+
+.note-input {
+  width: 100%; padding: 12px; border: 1.5px solid #eee;
+  border-radius: 10px; font-size: 14px; resize: none;
+  font-family: inherit; min-height: 60px;
+}
+.note-input:focus { outline: none; border-color: #EC4899; }
+.note-input::placeholder { color: #ddd; }
+
+.btn {
+  border: none; border-radius: 12px; font-size: 14px; font-weight: 600;
+  cursor: pointer; padding: 12px;
+  transition: all 0.15s;
+}
+.btn-full { width: 100%; margin-top: 8px; }
+.btn-primary { background: #EC4899; color: #fff; }
+.btn-primary:active { background: #DB2777; }
+.btn-danger { background: #fef2f2; color: #e74c3c; }
+.btn-danger:active { background: #fee; }
+
+/* Settings */
+.settings-panel { padding: 20px; }
+.setting-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+}
+.setting-label { font-size: 14px; color: #333; }
+.setting-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+.setting-input {
+  width: 72px; padding: 8px; border: 1.5px solid #eee;
+  border-radius: 8px; font-size: 14px; text-align: center;
+}
+.setting-input:focus { outline: none; border-color: #EC4899; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Header -->
+  <div class="header-bar">
+    <span class="app-title">📓 身体日记</span>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Phase Bar -->
+  <div class="phase-bar unknown" id="phaseBar">
+    <span class="bar-emoji" id="phaseEmoji">📅</span>
+    <span id="phaseText">请先设置经期日期</span>
+    <span class="bar-detail" id="phaseDay"></span>
+  </div>
+
+  <!-- Mini Month Strip -->
+  <div class="month-strip">
+    <span class="month-strip-label" id="monthStripLabel">2026年6月</span>
+    <div class="month-strip-nav">
+      <button class="strip-nav-btn" onclick="prevMonth()">◀</button>
+      <button class="strip-nav-btn" onclick="goToday()">●</button>
+      <button class="strip-nav-btn" onclick="nextMonth()">▶</button>
+    </div>
+  </div>
+  <div class="mini-cal" id="miniCal"></div>
+
+  <!-- Diary Section -->
+  <div class="section-divider">日记</div>
+  <div class="diary-list" id="diaryList">
+    <div class="empty-diary" id="emptyDiary">
+      <div class="empty-emoji">📝</div>
+      <div class="empty-text">还没有记录</div>
+      <div class="empty-sub">点右下角 ✏️ 记下今天的状态</div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openRecordSheet(getToday())">✏️</button>
+</div>
+
+<!-- Bottom Sheet -->
+<div class="overlay" id="overlay">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h3 id="sheetDate">6月4日 周四</h3>
+      <button class="sheet-close" onclick="closeSheet()">✕</button>
+    </div>
+    <div class="sheet-body">
+
+      <div class="sheet-section">
+        <div class="sheet-label">🩸 经期</div>
+        <div class="flow-row" id="flowRow">
+          <div class="flow-pill" data-flow="none" onclick="selectFlow('none')"><span class="pill-icon">✕</span>无</div>
+          <div class="flow-pill" data-flow="light" onclick="selectFlow('light')"><span class="pill-icon">💧</span>少量</div>
+          <div class="flow-pill" data-flow="medium" onclick="selectFlow('medium')"><span class="pill-icon">💧💧</span>中等</div>
+          <div class="flow-pill" data-flow="heavy" onclick="selectFlow('heavy')"><span class="pill-icon">💧💧💧</span>偏多</div>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <div class="sheet-label">😊 心情</div>
+        <div class="mood-grid" id="moodGrid">
+          <div class="mood-btn" data-mood="happy" onclick="selectMood('happy')"><span class="mood-emoji">😊</span>开心</div>
+          <div class="mood-btn" data-mood="neutral" onclick="selectMood('neutral')"><span class="mood-emoji">😐</span>一般</div>
+          <div class="mood-btn" data-mood="sad" onclick="selectMood('sad')"><span class="mood-emoji">😢</span>难过</div>
+          <div class="mood-btn" data-mood="anxious" onclick="selectMood('anxious')"><span class="mood-emoji">😰</span>焦虑</div>
+          <div class="mood-btn" data-mood="irritated" onclick="selectMood('irritated')"><span class="mood-emoji">😡</span>烦躁</div>
+          <div class="mood-btn" data-mood="tired" onclick="selectMood('tired')"><span class="mood-emoji">😴</span>疲劳</div>
+          <div class="mood-btn" data-mood="unwell" onclick="selectMood('unwell')"><span class="mood-emoji">🤒</span>不适</div>
+          <div class="mood-btn" data-mood="energetic" onclick="selectMood('energetic')"><span class="mood-emoji">💪</span>精力好</div>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <div class="sheet-label">🏷️ 身体状态（可多选）</div>
+        <div class="tag-row" id="tagRow">
+          <span class="tag-chip" data-tag="头痛" onclick="toggleTag('头痛')">头痛</span>
+          <span class="tag-chip" data-tag="腹胀" onclick="toggleTag('腹胀')">腹胀</span>
+          <span class="tag-chip" data-tag="胸胀" onclick="toggleTag('胸胀')">胸胀</span>
+          <span class="tag-chip" data-tag="腰酸" onclick="toggleTag('腰酸')">腰酸</span>
+          <span class="tag-chip" data-tag="水肿" onclick="toggleTag('水肿')">水肿</span>
+          <span class="tag-chip" data-tag="爆痘" onclick="toggleTag('爆痘')">爆痘</span>
+          <span class="tag-chip" data-tag="失眠" onclick="toggleTag('失眠')">失眠</span>
+          <span class="tag-chip" data-tag="食欲好" onclick="toggleTag('食欲好')">食欲好</span>
+          <span class="tag-chip" data-tag="食欲差" onclick="toggleTag('食欲差')">食欲差</span>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <div class="sheet-label">📝 备注</div>
+        <textarea class="note-input" id="noteInput" placeholder="记点什么..."></textarea>
+      </div>
+
+      <button class="btn btn-full btn-primary" onclick="saveRecord()">✅ 保存</button>
+      <button class="btn btn-full btn-danger" id="deleteBtn" onclick="deleteRecord()" style="display:none">🗑️ 删除这天</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="overlay" id="settingsOverlay">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h3>⚙️ 设置</h3>
+      <button class="sheet-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-panel">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">周期天数</div>
+          <div class="setting-sub">两次经期之间的间隔</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="setting-input" id="cycleLength" value="28" min="20" max="45">
+          <span style="font-size:13px;color:#999">天</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">经期持续天数</div>
+          <div class="setting-sub">通常来几天</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="setting-input" id="periodLength" value="5" min="2" max="10">
+          <span style="font-size:13px;color:#999">天</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">最近经期第一天</div>
+          <div class="setting-sub">用来推算当前阶段</div>
+        </div>
+        <input type="date" class="setting-input" id="lastPeriodStart" style="width:auto">
+      </div>
+      <button class="btn btn-full btn-primary" onclick="saveSettings()">💾 保存设置</button>
+      <button class="btn btn-full btn-danger" onclick="clearAll()" style="margin-top:6px">🗑️ 清空所有</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== State =====
+let currentYear = 2026;
+let currentMonth = 5; // 0-based: June
+let currentDate = null;
+let selectedFlow = 'none';
+let selectedMood = null;
+let selectedTags = [];
+
+// ===== Data =====
+function loadData() {
+  try {
+    const d = localStorage.getItem('xiaob_bodylog_v2');
+    return d ? JSON.parse(d) : { records: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
+  } catch (e) {
+    return { records: {}, settings: { cycleLength: 28, periodLength: 5, lastPeriodStart: '' } };
+  }
+}
+function saveData(data) { localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data)); }
+function getData() { return loadData(); }
+
+// ===== Helpers =====
+function fmt(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function parseDate(str) { const [y,m,d]=str.split('-').map(Number); return {year:y,month:m-1,day:d}; }
+function getToday() { const d=new Date(); return fmt(d.getFullYear(),d.getMonth(),d.getDate()); }
+function daysInMonth(y,m) { return new Date(y,m+1,0).getDate(); }
+function dayName(dow) { return ['日','一','二','三','四','五','六'][dow]; }
+function diffDays(d1,d2) { return Math.floor((new Date(d2)-new Date(d1))/(86400000)); }
+function prevDay(d) { const dt=new Date(d); dt.setDate(dt.getDate()-1); return fmt(dt.getFullYear(),dt.getMonth(),dt.getDate()); }
+
+const MOOD_MAP = {
+  happy:'😊', neutral:'😐', sad:'😢', anxious:'😰',
+  irritated:'😡', tired:'😴', unwell:'🤒', energetic:'💪'
+};
+const MOOD_TEXT = {
+  happy:'开心', neutral:'一般', sad:'难过', anxious:'焦虑',
+  irritated:'烦躁', tired:'疲劳', unwell:'不适', energetic:'精力充沛'
+};
+
+// ===== Phase =====
+function getPhase(data) {
+  const s = data.settings;
+  if (!s.lastPeriodStart) return null;
+  const today = getToday();
+  const dayInCycle = diffDays(s.lastPeriodStart, today) + 1;
+  if (dayInCycle <= 0) {
+    const until = -dayInCycle + 1;
+    return { phase:'luteal', day:dayInCycle, detail:`预计 ${until} 天后来月经` };
+  }
+  const cl = s.cycleLength;
+  const pl = s.periodLength;
+  const day = ((dayInCycle - 1) % cl) + 1;
+  if (day <= pl) {
+    return { phase:'menses', day, detail:`经期第${day}天 · 还剩${pl-day+1}天` };
+  }
+  const ovDay = cl - 14;
+  if (day < ovDay) {
+    return { phase:'follicular', day, detail:`卵泡期 · 距排卵约${ovDay-day}天` };
+  }
+  if (day <= ovDay + 2) {
+    return { phase:'ovulation', day, detail:'排卵期 · 易孕期' };
+  }
+  return { phase:'luteal', day, detail:`黄体期 · 距经期约${cl-day+1}天` };
+}
+
+function getPhaseInfo(data, dateStr) {
+  const s = data.settings;
+  if (!s.lastPeriodStart) return null;
+  const d = diffDays(s.lastPeriodStart, dateStr) + 1;
+  if (d <= 0) return null;
+  const cl = s.cycleLength, pl = s.periodLength;
+  const cycleDay = ((d - 1) % cl) + 1;
+  const ovDay = cl - 14;
+  const ovWindow = 3;
+
+  let phase, phaseDay, phaseTotal, prediction;
+
+  if (cycleDay <= pl) {
+    phase = 'menses';
+    phaseDay = cycleDay;
+    phaseTotal = pl;
+    if (cycleDay <= 2) prediction = '经期初期，注意保暖休息 ☕';
+    else if (cycleDay <= pl - 1) prediction = '经期中段，多喝热水，适当休息 🛌';
+    else prediction = '经期末尾，状态逐渐恢复 🌿';
+  } else if (cycleDay < ovDay) {
+    phase = 'follicular';
+    phaseDay = cycleDay - pl;
+    phaseTotal = ovDay - pl;
+    if (phaseDay <= 3) prediction = '卵泡期初期，精力开始回升 💫';
+    else prediction = '卵泡期，状态越来越好，皮肤在变好 ✨';
+  } else if (cycleDay <= ovDay + ovWindow - 1) {
+    phase = 'ovulation';
+    phaseDay = cycleDay - ovDay + 1;
+    phaseTotal = ovWindow;
+    prediction = '排卵期，精力旺盛，适合运动和社交 🏃‍♀️';
+  } else {
+    phase = 'luteal';
+    phaseDay = cycleDay - ovDay - ovWindow + 1;
+    phaseTotal = cl - ovDay - ovWindow + 1;
+    if (phaseDay <= 3) prediction = '黄体期早期，状态平稳 😌';
+    else if (phaseDay <= phaseTotal - 5) prediction = '黄体中期，可能出现情绪波动 🌊';
+    else if (phaseDay <= phaseTotal - 3) prediction = '经前数日，注意腹胀、胸胀 ⚠️';
+    else prediction = '经前最后几天，疲劳加重、情绪敏感，对自己好一点 💆‍♀️';
+  }
+
+  return { phase, phaseDay, phaseTotal, cycleDay, prediction };
+}
+
+// ===== Render =====
+function renderAll() {
+  renderPhaseBar();
+  renderMiniCal();
+  renderDiary();
+}
+
+function renderPhaseBar() {
+  const data = getData();
+  const p = getPhase(data);
+  const bar = document.getElementById('phaseBar');
+  if (!p) {
+    bar.className = 'phase-bar unknown';
+    document.getElementById('phaseEmoji').textContent = '📅';
+    document.getElementById('phaseText').textContent = '请先设置经期日期';
+    document.getElementById('phaseDay').textContent = '';
+    return;
+  }
+  bar.className = 'phase-bar ' + p.phase;
+  const emoji = { menses:'🩸', follicular:'🌱', ovulation:'✨', luteal:'🌙' };
+  const text = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
+  document.getElementById('phaseEmoji').textContent = emoji[p.phase];
+  document.getElementById('phaseText').textContent = text[p.phase];
+  document.getElementById('phaseDay').textContent = p.detail;
+}
+
+function renderMiniCal() {
+  const grid = document.getElementById('miniCal');
+  const data = getData();
+  const today = getToday();
+  const m = currentMonth;
+  const y = currentYear;
+
+  document.getElementById('monthStripLabel').textContent = `${y}年${m+1}月`;
+
+  let html = '';
+  ['一','二','三','四','五','六','日'].forEach(d => {
+    html += `<span class="mini-dow">${d}</span>`;
+  });
+
+  const firstDOW = new Date(y,m,1).getDay();
+  const offset = firstDOW === 0 ? 6 : firstDOW - 1;
+  const totalDays = daysInMonth(y,m);
+  const prevDays = daysInMonth(y, m-1);
+
+  for (let i = offset-1; i >= 0; i--) {
+    html += miniDayHtml(prevDays - i, false, today, data, y, m-1);
+  }
+  for (let d=1; d<=totalDays; d++) {
+    html += miniDayHtml(d, true, today, data, y, m);
+  }
+  const rem = 42 - (offset + totalDays);
+  for (let d=1; d<=rem; d++) {
+    html += miniDayHtml(d, false, today, data, y, m+1);
+  }
+
+  grid.innerHTML = html;
+
+  // Add click handlers
+  grid.querySelectorAll('.mini-day.this-month').forEach(el => {
+    el.addEventListener('click', () => {
+      const day = parseInt(el.dataset.day);
+      const ds = fmt(currentYear, currentMonth, day);
+      openRecordSheet(ds);
+    });
+  });
+}
+
+function miniDayHtml(day, thisMonth, today, data, y, m) {
+  const ds = fmt(y, m, day);
+  const rec = data.records[ds];
+  let cls = 'mini-day';
+  if (thisMonth) cls += ' this-month';
+  if (ds === today) cls += ' today';
+  if (rec) {
+    if (rec.flow && rec.flow !== 'none') cls += ' has-record has-period';
+    else if (rec.mood) cls += ' has-record has-mood';
+    else if (rec.tags && rec.tags.length > 0) cls += ' has-record has-tag';
+    else cls += ' has-record';
+  }
+  return `<span class="${cls}" data-day="${day}">${day}</span>`;
+}
+
+function renderDiary() {
+  const data = getData();
+  const today = getToday();
+  const list = document.getElementById('diaryList');
+  const empty = document.getElementById('emptyDiary');
+
+  // Get all dates this month that have records, sorted newest first
+  const start = fmt(currentYear, currentMonth, 1);
+  const end = fmt(currentYear, currentMonth, daysInMonth(currentYear, currentMonth));
+  const records = [];
+
+  for (const [ds, rec] of Object.entries(data.records)) {
+    // Only show records for current month
+    const { year, month } = parseDate(ds);
+    if (year === currentYear && month === currentMonth) {
+      records.push({ ds, rec });
+    }
+  }
+
+  records.sort((a,b) => b.ds.localeCompare(a.ds));
+
+  if (records.length === 0) {
+    empty.style.display = 'block';
+    // Remove any entry cards
+    list.querySelectorAll('.entry-card').forEach(c => c.remove());
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  let html = '';
+  const phaseNames = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
+  const flowLabels = { light:'少量', medium:'中等', heavy:'偏多' };
+
+  for (const { ds, rec } of records) {
+    const { year, month, day } = parseDate(ds);
+    const dow = dayName(new Date(year, month, day).getDay());
+    const info = getPhaseInfo(data, ds);
+
+    html += '<div class="entry-card" data-date="' + ds + '">';
+    html += '<div class="entry-header">';
+    html += `<span class="entry-date">${month+1}月${day}日 <span class="entry-weekday">周${dow}</span></span>`;
+    if (info) {
+      html += `<span class="entry-phase-tag phase-tag-${info.phase}">${phaseNames[info.phase]}第${info.phaseDay}天</span>`;
+    }
+    html += '</div>';
+
+    // Prediction tip
+    if (info && info.prediction) {
+      html += `<div class="entry-prediction">${info.prediction}</div>`;
+    }
+
+    if (rec.flow && rec.flow !== 'none') {
+      html += `<div class="entry-period">🩸 经期 · ${flowLabels[rec.flow]}</div>`;
+    }
+
+    if (rec.mood) {
+      html += `<div class="entry-mood-line"><span class="entry-mood-emoji">${MOOD_MAP[rec.mood]}</span><span class="entry-mood-text">${MOOD_TEXT[rec.mood]}</span></div>`;
+    }
+
+    if (rec.tags && rec.tags.length > 0) {
+      html += '<div class="entry-tags">';
+      rec.tags.forEach(t => { html += `<span class="entry-tag">${t}</span>`; });
+      html += '</div>';
+    }
+
+    if (rec.note) {
+      html += `<div class="entry-note">${rec.note}</div>`;
+    }
+
+    html += '</div>';
+  }
+
+  // Preserve empty div, add cards after
+  const existing = list.querySelectorAll('.entry-card');
+  existing.forEach(c => c.remove());
+  list.insertAdjacentHTML('beforeend', html);
+
+  // Add click handlers
+  list.querySelectorAll('.entry-card').forEach(card => {
+    card.addEventListener('click', () => {
+      openRecordSheet(card.dataset.date);
+    });
+  });
+}
+
+// ===== Sheet =====
+function openRecordSheet(dateStr) {
+  const data = getData();
+  const rec = data.records[dateStr] || null;
+  const { year, month, day } = parseDate(dateStr);
+  currentDate = dateStr;
+  selectedFlow = rec ? rec.flow || 'none' : 'none';
+  selectedMood = rec ? rec.mood : null;
+  selectedTags = rec ? (rec.tags || []).slice() : [];
+  document.getElementById('noteInput').value = rec ? rec.note || '' : '';
+  document.getElementById('sheetDate').textContent = `${month+1}月${day}日 周${dayName(new Date(year,month,day).getDay())}`;
+  document.getElementById('deleteBtn').style.display = rec ? 'block' : 'none';
+  updateFlowUI(); updateMoodUI(); updateTagUI();
+  document.getElementById('overlay').classList.add('active');
+}
+
+function closeSheet(e) { document.getElementById('overlay').classList.remove('active'); }
+document.getElementById('overlay').addEventListener('click', closeSheet);
+
+function selectFlow(f) { selectedFlow = f; updateFlowUI(); }
+function updateFlowUI() {
+  document.getElementById('flowRow').querySelectorAll('.flow-pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.flow === selectedFlow);
+  });
+}
+
+function selectMood(m) { selectedMood = selectedMood === m ? null : m; updateMoodUI(); }
+function updateMoodUI() {
+  document.getElementById('moodGrid').querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.mood === selectedMood);
+  });
+}
+
+function toggleTag(t) {
+  const i = selectedTags.indexOf(t);
+  if (i >= 0) selectedTags.splice(i, 1);
+  else selectedTags.push(t);
+  updateTagUI();
+}
+function updateTagUI() {
+  document.getElementById('tagRow').querySelectorAll('.tag-chip').forEach(c => {
+    c.classList.toggle('selected', selectedTags.includes(c.dataset.tag));
+  });
+}
+
+function saveRecord() {
+  if (!currentDate) return;
+  const data = getData();
+  const note = document.getElementById('noteInput').value;
+
+  if (selectedFlow !== 'none') {
+    if (!data.settings.lastPeriodStart || currentDate < data.settings.lastPeriodStart) {
+      const prev = prevDay(currentDate);
+      const prevRec = data.records[prev];
+      if (!prevRec || prevRec.flow === 'none') {
+        data.settings.lastPeriodStart = currentDate;
+      }
+    }
+  }
+
+  if (selectedFlow === 'none' && !selectedMood && selectedTags.length === 0 && !note) {
+    delete data.records[currentDate];
+  } else {
+    data.records[currentDate] = {
+      flow: selectedFlow, mood: selectedMood,
+      tags: selectedTags.slice(), note
+    };
+  }
+
+  saveData(data);
+  document.getElementById('overlay').classList.remove('active');
+  renderAll();
+}
+
+function deleteRecord() {
+  if (!currentDate) return;
+  if (!confirm('确定删除这天的记录吗？')) return;
+  const data = getData();
+  delete data.records[currentDate];
+  if (data.settings.lastPeriodStart === currentDate) {
+    // Find new last period start
+    const dates = Object.keys(data.records).sort();
+    let found = null;
+    for (const d of dates) {
+      const r = data.records[d];
+      if (r.flow && r.flow !== 'none') {
+        const p = prevDay(d);
+        const pr = data.records[p];
+        if (!pr || pr.flow === 'none') { found = d; break; }
+      }
+    }
+    data.settings.lastPeriodStart = found || '';
+  }
+  saveData(data);
+  document.getElementById('overlay').classList.remove('active');
+  renderAll();
+}
+
+// ===== Calendar Nav =====
+function prevMonth() {
+  if (currentMonth === 0) { currentMonth = 11; currentYear--; }
+  else currentMonth--;
+  renderAll();
+}
+function nextMonth() {
+  if (currentMonth === 11) { currentMonth = 0; currentYear++; }
+  else currentMonth++;
+  renderAll();
+}
+function goToday() {
+  const today = getToday();
+  const [y,m] = today.split('-').map(Number);
+  currentYear = y; currentMonth = m - 1;
+  renderAll();
+}
+
+// ===== Settings =====
+function openSettings() {
+  const data = getData();
+  document.getElementById('cycleLength').value = data.settings.cycleLength;
+  document.getElementById('periodLength').value = data.settings.periodLength;
+  document.getElementById('lastPeriodStart').value = data.settings.lastPeriodStart;
+  document.getElementById('settingsOverlay').classList.add('active');
+}
+function closeSettings() { document.getElementById('settingsOverlay').classList.remove('active'); }
+document.getElementById('settingsOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('settingsOverlay')) closeSettings();
+});
+
+function saveSettings() {
+  const data = getData();
+  data.settings.cycleLength = parseInt(document.getElementById('cycleLength').value) || 28;
+  data.settings.periodLength = parseInt(document.getElementById('periodLength').value) || 5;
+  data.settings.lastPeriodStart = document.getElementById('lastPeriodStart').value;
+  saveData(data);
+  closeSettings();
+  renderAll();
+}
+
+function clearAll() {
+  if (!confirm('确定要清空所有记录吗？不可撤销！')) return;
+  localStorage.removeItem('xiaob_bodylog_v2');
+  closeSettings();
+  renderAll();
+}
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+  const today = getToday();
+  const [y,m] = today.split('-').map(Number);
+  currentYear = y; currentMonth = m - 1;
+  renderAll();
+});
+</script>
+</body>
+</html>
