@@ -1600,6 +1600,7 @@ function getActionReminders() {
   const today = getToday();
   const completed = getReminderState()[today] || {};
   const h = now.getHours();
+  const d = now.getDate();
   const actions = [];
 
   if (h >= 10 && !completed.morning_med) {
@@ -1610,6 +1611,9 @@ function getActionReminders() {
   }
   if (h >= 22 && !completed.body_log) {
     actions.push({ key: 'body_log', icon: '📝', title: '身体记录', desc: '记录一下今天的状态吧', iconClass: 'litter' });
+  }
+  if (d === 15 && !completed.dryer) {
+    actions.push({ key: 'dryer', icon: '🧪', title: '更换干燥剂', desc: '每月15号，该换猫粮干燥剂了', iconClass: 'food' });
   }
   return actions;
 }
