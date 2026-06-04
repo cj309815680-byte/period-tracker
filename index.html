@@ -553,7 +553,7 @@ body {
       <span class="cat-section-title">🐱 猫猫</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="cat-updated" id="catUpdated"></span>
-        <button class="cat-refresh-btn" onclick="refreshCatData()">🔄</button>
+        <button class="cat-refresh-btn" id="catSyncBtn" onclick="syncCatData()">🔄 同步</button>
       </div>
     </div>
     <div class="cat-cards" id="catCards">
@@ -873,6 +873,79 @@ async function loadCatData() {
 async function refreshCatData() {
   _catData = await loadCatData();
   renderCatSection();
+}
+
+// ===== Trigger GitHub Action to sync cat data =====
+let _syncTimer = null;
+async function syncCatData() {
+  const token = getToken();
+  if (!token) {
+    alert('请先设置 GitHub Token（用于同步）');
+    return;
+  }
+  
+  const btn = document.getElementById('catSyncBtn');
+  btn.textContent = '⏳ 触发中...';
+  btn.style.color = '#F59E0B';
+  btn.disabled = true;
+  
+  try {
+    // Trigger the GitHub Actions workflow
+    const resp = await fetch('https://api.github.com/repos/cj309815680-byte/period-tracker/actions/workflows/update-petkit.yml/dispatches', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ref: 'main' })
+    });
+    
+    if (resp.ok) {
+      btn.textContent = '⏳ 等待更新...';
+      btn.style.color = '#60A5FA';
+      
+      // Poll for updates (every 5 seconds, up to 1 minute)
+      let tries = 0;
+      const oldUpdated = _catData ? _catData.updated_at : null;
+      
+      if (_syncTimer) clearInterval(_syncTimer);
+      _syncTimer = setInterval(async () => {
+        tries++;
+        const data = await loadCatData();
+        if (data && data.updated_at !== oldUpdated) {
+          // Data updated!
+          clearInterval(_syncTimer);
+          _syncTimer = null;
+          _catData = data;
+          renderCatSection();
+          btn.textContent = '✅ 已同步';
+          btn.style.color = '#10B981';
+          btn.disabled = false;
+          setTimeout(() => {
+            btn.textContent = '🔄 同步';
+            btn.style.color = '#6366F1';
+          }, 3000);
+        } else if (tries >= 12) {
+          // Timeout after 1 minute
+          clearInterval(_syncTimer);
+          _syncTimer = null;
+          _catData = await loadCatData();
+          renderCatSection();
+          btn.textContent = '🔄 同步';
+          btn.style.color = '#6366F1';
+          btn.disabled = false;
+        }
+      }, 5000);
+    } else {
+      throw new Error('HTTP ' + resp.status);
+    }
+  } catch(e) {
+    btn.textContent = '🔄 同步';
+    btn.style.color = '#6366F1';
+    btn.disabled = false;
+    alert('触发失败: ' + e.message + '\n\n请确认：\n1. workflow 文件已创建\n2. Token 有 repo 权限');
+  }
 }
 
 function renderCatSection() {
