@@ -58,6 +58,21 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 .tab-item .tab-icon { font-size: 22px; }
+.tab-item .tab-icon svg { width: 22px; height: 22px; stroke: #999; }
+.tab-item.active .tab-icon svg { stroke: #EC4899; }
+
+/* Icon base style */
+.icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  vertical-align: middle;
+}
+.icon-sm { width: 14px; height: 14px; }
+.icon-md { width: 18px; height: 18px; }
+.icon-lg { width: 22px; height: 22px; }
 .tab-item.active { color: #EC4899; font-weight: 600; }
 
 /* ===== Today Dashboard ===== */
@@ -440,6 +455,7 @@ body {
 }
 
 .phase-bar .bar-emoji { font-size: 20px; }
+.phase-bar .bar-emoji svg { width: 20px; height: 20px; vertical-align: middle; }
 .phase-bar .bar-detail { font-size: 12px; opacity: 0.85; font-weight: 400; margin-left: auto; }
 
 .phase-bar.menses { background: linear-gradient(135deg, #F472B6, #EC4899); }
@@ -814,6 +830,74 @@ body {
 </style>
 </head>
 <body>
+<!-- SVG Icon Definitions (Line Style) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"></polyline>
+  </symbol>
+  <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </symbol>
+  <symbol id="icon-today" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="4"></circle>
+  </symbol>
+  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <line x1="12" y1="1" x2="12" y2="4"></line>
+    <line x1="12" y1="20" x2="12" y2="23"></line>
+    <line x1="1" y1="12" x2="4" y2="12"></line>
+    <line x1="20" y1="12" x2="23" y2="12"></line>
+    <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line>
+    <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line>
+    <line x1="4.2" y1="19.8" x2="6.3" y2="17.7"></line>
+    <line x1="17.7" y1="6.3" x2="19.8" y2="4.2"></line>
+  </symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </symbol>
+  <symbol id="icon-sync" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="23 4 23 10 17 10"></polyline>
+    <polyline points="1 20 1 14 7 14"></polyline>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+  </symbol>
+  <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+    <line x1="16" y1="2" x2="16" y2="6"></line>
+    <line x1="8" y1="2" x2="8" y2="6"></line>
+    <line x1="3" y1="10" x2="21" y2="10"></line>
+  </symbol>
+  <symbol id="icon-memo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+    <polyline points="14 2 14 8 20 8"></polyline>
+  </symbol>
+  <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+  </symbol>
+  <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+  </symbol>
+  <symbol id="icon-diary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+  </symbol>
+  <symbol id="icon-expense" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="1" x2="12" y2="23"></line>
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+  </symbol>
+  <symbol id="icon-learn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+    <path d="M8 7h6M8 11h6M8 15h3"></path>
+  </symbol>
+</svg>
+<!-- End SVG Icon Definitions -->
+
 <div class="app" id="app">
 
   <!-- ===== Tab 1: 今日 ===== -->
@@ -827,7 +911,10 @@ body {
       <div class="today-reminders" id="todayReminders"></div>
       <div class="today-courses" id="todayCourses" style="display:none"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
-      <button class="cat-sync-btn" id="catSyncBtn" onclick="syncCatData()">🔄 同步猫猫数据</button>
+      <button class="cat-sync-btn" id="catSyncBtn" onclick="syncCatData()">
+        <svg class="icon icon-sm" style="margin-right: 4px;"><use href="#icon-sync"></use></svg>
+        同步猫猫数据
+      </button>
 
       <!-- Expense quick view -->
       <div class="expense-quick" id="expenseQuick">
@@ -860,7 +947,9 @@ body {
   <div class="tab-panel" id="panel-diary">
     <!-- Phase Bar -->
     <div class="phase-bar unknown" id="phaseBar">
-      <span class="bar-emoji" id="phaseEmoji">📅</span>
+      <span class="bar-emoji" id="phaseEmoji">
+        <svg class="icon" style="width: 20px; height: 20px;"><use href="#icon-calendar"></use></svg>
+      </span>
       <span id="phaseText">请先设置经期日期</span>
       <span class="bar-detail" id="phaseDay"></span>
     </div>
@@ -869,10 +958,18 @@ body {
     <div class="month-strip">
       <span class="month-strip-label" id="monthStripLabel">2026年6月</span>
       <div class="month-strip-nav">
-        <button class="strip-nav-btn" onclick="prevMonth()">◀</button>
-        <button class="strip-nav-btn" onclick="goToday()">●</button>
-        <button class="strip-nav-btn" onclick="nextMonth()">▶</button>
-        <button class="strip-nav-btn" onclick="openSettings()" title="周期设置">⚙</button>
+        <button class="strip-nav-btn" onclick="prevMonth()" title="上月">
+          <svg class="icon"><use href="#icon-chevron-left"></use></svg>
+        </button>
+        <button class="strip-nav-btn" onclick="goToday()" title="今天">
+          <svg class="icon"><use href="#icon-today"></use></svg>
+        </button>
+        <button class="strip-nav-btn" onclick="nextMonth()" title="下月">
+          <svg class="icon"><use href="#icon-chevron-right"></use></svg>
+        </button>
+        <button class="strip-nav-btn" onclick="openSettings()" title="周期设置">
+          <svg class="icon"><use href="#icon-settings"></use></svg>
+        </button>
       </div>
     </div>
     <div class="mini-cal" id="miniCal"></div>
@@ -881,14 +978,18 @@ body {
     <div class="section-divider">日记</div>
     <div class="diary-list" id="diaryList">
       <div class="empty-diary" id="emptyDiary">
-        <div class="empty-emoji">📝</div>
+        <div class="empty-emoji">
+          <svg style="width: 48px; height: 48px; stroke: #ccc; fill: none;"><use href="#icon-memo"></use></svg>
+        </div>
         <div class="empty-text">还没有记录</div>
-        <div class="empty-sub">点右下角 ✏️ 记下今天的状态</div>
+        <div class="empty-sub">点右下角记下今天的状态</div>
       </div>
     </div>
 
     <!-- FAB (only visible when diary tab is active) -->
-    <button class="fab" onclick="openRecordSheet(getToday())">✏️</button>
+    <button class="fab" onclick="openRecordSheet(getToday())">
+      <svg class="icon" style="width: 24px; height: 24px; stroke: white;"><use href="#icon-edit"></use></svg>
+    </button>
   </div>
 
   <!-- ===== Tab 3: 记账 ===== -->
@@ -896,9 +997,13 @@ body {
     <div class="expense-page" id="expensePage">
       <!-- Month selector -->
       <div class="expense-month-bar">
-        <button class="strip-nav-btn" onclick="expensePrevMonth()">◀</button>
+        <button class="strip-nav-btn" onclick="expensePrevMonth()">
+          <svg class="icon"><use href="#icon-chevron-left"></use></svg>
+        </button>
         <span class="expense-month-label" id="expenseMonthLabel">2026年6月</span>
-        <button class="strip-nav-btn" onclick="expenseNextMonth()">▶</button>
+        <button class="strip-nav-btn" onclick="expenseNextMonth()">
+          <svg class="icon"><use href="#icon-chevron-right"></use></svg>
+        </button>
       </div>
       <!-- Monthly total -->
       <div class="expense-month-total" id="expenseMonthTotal">
@@ -917,9 +1022,13 @@ body {
     <div class="learn-page" id="learnPage">
       <!-- Month navigator -->
       <div class="learn-month-nav">
-        <button class="learn-month-btn" onclick="learnPrevMonth()">◀</button>
+        <button class="learn-month-btn" onclick="learnPrevMonth()">
+          <svg class="icon"><use href="#icon-chevron-left"></use></svg>
+        </button>
         <span class="learn-month-label" id="learnMonthLabel"></span>
-        <button class="learn-month-btn" onclick="learnNextMonth()">▶</button>
+        <button class="learn-month-btn" onclick="learnNextMonth()">
+          <svg class="icon"><use href="#icon-chevron-right"></use></svg>
+        </button>
         <button class="learn-month-btn learn-month-today" onclick="learnGoThisMonth()">本月</button>
       </div>
       <!-- Month calendar -->
@@ -930,16 +1039,16 @@ body {
   <!-- ===== Bottom Tab Bar ===== -->
   <div class="tab-bar">
     <div class="tab-item active" data-tab="today" onclick="switchTab('today')">
-      <span class="tab-icon">🏠</span>今日
+      <span class="tab-icon"><svg class="icon icon-lg"><use href="#icon-home"></use></svg></span>今日
     </div>
     <div class="tab-item" data-tab="diary" onclick="switchTab('diary')">
-      <span class="tab-icon">📓</span>日记
+      <span class="tab-icon"><svg class="icon icon-lg"><use href="#icon-diary"></use></svg></span>日记
     </div>
     <div class="tab-item" data-tab="expense" onclick="switchTab('expense')">
-      <span class="tab-icon">💰</span>记账
+      <span class="tab-icon"><svg class="icon icon-lg"><use href="#icon-expense"></use></svg></span>记账
     </div>
     <div class="tab-item" data-tab="learn" onclick="switchTab('learn')">
-      <span class="tab-icon">📚</span>学习
+      <span class="tab-icon"><svg class="icon icon-lg"><use href="#icon-learn"></use></svg></span>学习
     </div>
   </div>
 </div>
@@ -955,31 +1064,31 @@ body {
     <div class="sheet-body">
 
       <div class="sheet-section">
-        <div class="sheet-label">🩸 经期</div>
+        <div class="sheet-label">经期</div>
         <div class="flow-row" id="flowRow">
           <div class="flow-pill" data-flow="none" onclick="selectFlow('none')"><span class="pill-icon">✕</span>无</div>
-          <div class="flow-pill" data-flow="light" onclick="selectFlow('light')"><span class="pill-icon">💧</span>少量</div>
-          <div class="flow-pill" data-flow="medium" onclick="selectFlow('medium')"><span class="pill-icon">💧💧</span>中等</div>
-          <div class="flow-pill" data-flow="heavy" onclick="selectFlow('heavy')"><span class="pill-icon">💧💧💧</span>偏多</div>
+          <div class="flow-pill" data-flow="light" onclick="selectFlow('light')">少量</div>
+          <div class="flow-pill" data-flow="medium" onclick="selectFlow('medium')">中等</div>
+          <div class="flow-pill" data-flow="heavy" onclick="selectFlow('heavy')">偏多</div>
         </div>
       </div>
 
       <div class="sheet-section">
-        <div class="sheet-label">😊 心情</div>
+        <div class="sheet-label">心情</div>
         <div class="mood-grid" id="moodGrid">
-          <div class="mood-btn" data-mood="happy" onclick="selectMood('happy')"><span class="mood-emoji">😊</span>开心</div>
-          <div class="mood-btn" data-mood="neutral" onclick="selectMood('neutral')"><span class="mood-emoji">😐</span>一般</div>
-          <div class="mood-btn" data-mood="sad" onclick="selectMood('sad')"><span class="mood-emoji">😢</span>难过</div>
-          <div class="mood-btn" data-mood="anxious" onclick="selectMood('anxious')"><span class="mood-emoji">😰</span>焦虑</div>
-          <div class="mood-btn" data-mood="irritated" onclick="selectMood('irritated')"><span class="mood-emoji">😡</span>烦躁</div>
-          <div class="mood-btn" data-mood="tired" onclick="selectMood('tired')"><span class="mood-emoji">😴</span>疲劳</div>
-          <div class="mood-btn" data-mood="unwell" onclick="selectMood('unwell')"><span class="mood-emoji">🤒</span>不适</div>
-          <div class="mood-btn" data-mood="energetic" onclick="selectMood('energetic')"><span class="mood-emoji">💪</span>精力好</div>
+          <div class="mood-btn" data-mood="happy" onclick="selectMood('happy')">开心</div>
+          <div class="mood-btn" data-mood="neutral" onclick="selectMood('neutral')">一般</div>
+          <div class="mood-btn" data-mood="sad" onclick="selectMood('sad')">难过</div>
+          <div class="mood-btn" data-mood="anxious" onclick="selectMood('anxious')">焦虑</div>
+          <div class="mood-btn" data-mood="irritated" onclick="selectMood('irritated')">烦躁</div>
+          <div class="mood-btn" data-mood="tired" onclick="selectMood('tired')">疲劳</div>
+          <div class="mood-btn" data-mood="unwell" onclick="selectMood('unwell')">不适</div>
+          <div class="mood-btn" data-mood="energetic" onclick="selectMood('energetic')">精力好</div>
         </div>
       </div>
 
       <div class="sheet-section">
-        <div class="sheet-label">🏷️ 身体状态（可多选）</div>
+        <div class="sheet-label">身体状态（可多选）</div>
         <div class="tag-row" id="tagRow">
           <span class="tag-chip" data-tag="头痛" onclick="toggleTag('头痛')">头痛</span>
           <span class="tag-chip" data-tag="腹胀" onclick="toggleTag('腹胀')">腹胀</span>
@@ -994,12 +1103,15 @@ body {
       </div>
 
       <div class="sheet-section">
-        <div class="sheet-label">📝 备注</div>
+        <div class="sheet-label">备注</div>
         <textarea class="note-input" id="noteInput" placeholder="记点什么..."></textarea>
       </div>
 
-      <button class="btn btn-full btn-primary" onclick="saveRecord()">✅ 保存</button>
-      <button class="btn btn-full btn-danger" id="deleteBtn" onclick="deleteRecord()" style="display:none">🗑️ 删除这天</button>
+      <button class="btn btn-full btn-primary" onclick="saveRecord()">
+        <svg class="icon icon-sm" style="margin-right: 4px;"><use href="#icon-check"></use></svg>
+        保存
+      </button>
+      <button class="btn btn-full btn-danger" id="deleteBtn" onclick="deleteRecord()" style="display:none">删除这天</button>
     </div>
   </div>
 </div>
@@ -1009,7 +1121,10 @@ body {
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
     <div class="sheet-header">
-      <h3>⚙️ 设置</h3>
+      <h3>
+        <svg class="icon icon-md" style="margin-right: 6px; vertical-align: text-bottom;"><use href="#icon-settings"></use></svg>
+        设置
+      </h3>
       <button class="sheet-close" onclick="closeSettings()">✕</button>
     </div>
     <div class="settings-panel">
@@ -1040,8 +1155,8 @@ body {
         </div>
         <input type="date" class="setting-input" id="lastPeriodStart" style="width:auto">
       </div>
-      <button class="btn btn-full btn-primary" onclick="saveSettings()">💾 保存设置</button>
-      <button class="btn btn-full btn-danger" onclick="clearAll()" style="margin-top:6px">🗑️ 清空所有</button>
+      <button class="btn btn-full btn-primary" onclick="saveSettings()">保存设置</button>
+      <button class="btn btn-full btn-danger" onclick="clearAll()" style="margin-top:6px">清空所有</button>
     </div>
   </div>
 </div>
@@ -1605,22 +1720,22 @@ async function loadCatData() {
 
 async function syncCatData() {
   const btn = document.getElementById('catSyncBtn');
-  const orig = btn.textContent;
-  btn.textContent = '⏳ 同步中...';
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<svg class="icon icon-sm" style="margin-right: 4px;"><use href="#icon-sync"></use></svg>⏳ 同步中...';
   btn.classList.add('syncing');
 
   try {
     _catData = await loadCatData();
     renderToday();
-    btn.textContent = '✅ 同步完成';
+    btn.innerHTML = '<svg class="icon icon-sm" style="margin-right: 4px;"><use href="#icon-check"></use></svg>✅ 同步完成';
     btn.classList.remove('syncing');
   } catch(e) {
-    btn.textContent = '❌ 同步失败';
+    btn.innerHTML = '<svg class="icon icon-sm" style="margin-right: 4px;"><use href="#icon-close"></use></svg>❌ 同步失败';
     btn.classList.remove('syncing');
   }
 
   setTimeout(() => {
-    btn.textContent = orig;
+    btn.innerHTML = orig;
   }, 2000);
 }
 
@@ -1902,16 +2017,18 @@ function renderPhaseBar() {
   const data = getData();
   const p = getPhase(data);
   const bar = document.getElementById('phaseBar');
+  const emojiEl = document.getElementById('phaseEmoji');
+
   if (!p) {
     bar.className = 'phase-bar unknown';
-    document.getElementById('phaseEmoji').textContent = '📅';
+    emojiEl.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;"><use href="#icon-calendar"></use></svg>';
     document.getElementById('phaseText').textContent = '请先设置经期日期';
     document.getElementById('phaseDay').textContent = '';
     return;
   }
+
   bar.className = 'phase-bar ' + p.phase;
-  const emoji = { menses:'🩸', follicular:'🌱', ovulation:'✨', luteal:'🌙' };
-  document.getElementById('phaseEmoji').textContent = emoji[p.phase];
+  emojiEl.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;"><use href="#icon-calendar"></use></svg>';
   document.getElementById('phaseText').textContent = PHASE_NAMES[p.phase];
   document.getElementById('phaseDay').textContent = p.detail;
 }
