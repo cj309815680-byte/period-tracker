@@ -72,7 +72,29 @@ body {
 .today-weekday {
   font-size: 14px;
   color: #999;
+  margin-bottom: 6px;
+}
+
+.today-ganzhi {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6B7280;
   margin-bottom: 18px;
+  background: #F9FAFB;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+.today-ganzhi .gz-auspicious {
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 14px;
+  animation: gzPulse 2s ease-in-out infinite;
+}
+@keyframes gzPulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .today-reminders { display: flex; flex-direction: column; gap: 8px; }
@@ -703,8 +725,9 @@ body {
   <!-- ===== Tab 1: 今日 ===== -->
   <div class="tab-panel active" id="panel-today">
     <div class="today-container" id="todayContainer">
-      <div class="today-date" id="todayDate"></div>
+      <div class="today-date" id="todayDate">(加载中...)</div>
       <div class="today-weekday" id="todayWeekday"></div>
+      <div class="today-ganzhi" id="todayGanZhi"></div>
       <div class="today-reminders" id="todayReminders"></div>
       <div class="today-summary" id="todaySummary" style="display:none"></div>
 
@@ -940,6 +963,11 @@ function renderToday() {
 
   document.getElementById('todayDate').textContent = `${month+1}月${day}日`;
   document.getElementById('todayWeekday').textContent = `周${dow}`;
+  
+  // 日柱
+  const gz = getDayGanZhi(today);
+  document.getElementById('todayGanZhi').innerHTML = 
+    `${gz.ganZhi}日 · ${gz.element}` + (gz.isAuspicious ? ` <span class="gz-auspicious">吉</span>` : '');
 
   let reminders = [];
   const s = data.settings;
@@ -1078,15 +1106,7 @@ function renderTodaySummary(data) {
     const phaseNames = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
     if (p) {
       rows.push({ label: '当前阶段', val: phaseNames[p.phase] + ' · 第' + p.day + '天' });
-      const nextPeriod = new Date(s.lastPeriodStart);
-      nextPeriod.setDate(nextPeriod.getDate() + s.cycleLength);
-      const nextStr = fmt(nextPeriod.getFullYear(), nextPeriod.getMonth(), nextPeriod.getDate());
-      const daysUntil = diffDays(today, nextStr);
-      if (daysUntil > 0) {
-        rows.push({ label: '距下次经期', val: daysUntil + ' 天' });
-      }
     }
-    rows.push({ label: '周期', val: s.cycleLength + '天 · 经期' + s.periodLength + '天' });
   }
 
   if (_catData) {
@@ -1107,7 +1127,7 @@ function renderTodaySummary(data) {
       `<div class="today-summary-row"><span class="today-summary-label">${r.label}</span><span class="today-summary-val">${r.val}</span></div>`
     ).join('');
     // Add cat sync button
-    html += '<div style="text-align:right;margin-top:10px"><button onclick="syncCatData()" style="border:none;background:none;color:#999;font-size:11px;cursor:pointer">🔄 同步猫猫数据</button></div>';
+    html += '<div style="text-align:right;margin-top:10px"><button id="catSyncBtn" onclick="syncCatData()" style="border:none;background:none;color:#6366F1;font-size:11px;cursor:pointer">🔄 同步猫猫数据</button></div>';
     el.innerHTML = html;
     el.style.display = 'block';
   } else {
@@ -1529,6 +1549,7 @@ async function refreshCatData() {
 
 // ===== Trigger GitHub Action to sync cat data =====
 let _syncTimer = null;
+let _catAutoSyncTimer = null;
 async function syncCatData() {
   const token = getToken();
   if (!token) {
@@ -1570,13 +1591,12 @@ async function syncCatData() {
           clearInterval(_syncTimer);
           _syncTimer = null;
           _catData = data;
-            renderToday();
           renderToday();
           btn.textContent = '✅ 已同步';
           btn.style.color = '#10B981';
           btn.disabled = false;
           setTimeout(() => {
-            btn.textContent = '🔄 同步';
+            btn.textContent = '🔄 同步猫猫数据';
             btn.style.color = '#6366F1';
           }, 3000);
         } else if (tries >= 12) {
@@ -1584,9 +1604,8 @@ async function syncCatData() {
           clearInterval(_syncTimer);
           _syncTimer = null;
           _catData = await loadCatData();
-            renderToday();
           renderToday();
-          btn.textContent = '🔄 同步';
+          btn.textContent = '🔄 同步猫猫数据';
           btn.style.color = '#6366F1';
           btn.disabled = false;
         }
@@ -1595,10 +1614,39 @@ async function syncCatData() {
       throw new Error('HTTP ' + resp.status);
     }
   } catch(e) {
-    btn.textContent = '🔄 同步';
+    btn.textContent = '🔄 同步猫猫数据';
     btn.style.color = '#6366F1';
     btn.disabled = false;
     alert('触发失败: ' + e.message + '\n\n请确认：\n1. workflow 文件已创建\n2. Token 有 repo 权限');
+  }
+}
+
+// Silent auto-sync: no button animation, no alert on failure
+async function autoSyncCatData() {
+  const token = getToken();
+  if (!token) return;
+  
+  try {
+    await fetch('https://api.github.com/repos/cj309815680-byte/period-tracker/actions/workflows/update-petkit.yml/dispatches', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ref: 'main' })
+    });
+    
+    // Wait 30 seconds then silently update
+    await new Promise(r => setTimeout(r, 30000));
+    const data = await loadCatData();
+    if (data) {
+      _catData = data;
+      renderToday();
+    }
+  } catch(e) {
+    // Silent fail — it's just a periodic check
+    console.log('Auto cat sync failed:', e.message);
   }
 }
 
@@ -1618,6 +1666,26 @@ const MOOD_TEXT = {
   happy:'开心', neutral:'一般', sad:'难过', anxious:'焦虑',
   irritated:'烦躁', tired:'疲劳', unwell:'不适', energetic:'精力充沛'
 };
+
+// 干支日计算
+function getDayGanZhi(dateStr) {
+  const STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const EL = { '甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水' };
+  const ref = Date.UTC(1900, 0, 1);
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const target = Date.UTC(y, m-1, d);
+  const daysDiff = Math.round((target - ref) / 86400000);
+  const idx = ((10 + daysDiff) % 60 + 60) % 60;
+  const stem = STEMS[idx % 10];
+  const branch = BRANCHES[idx % 12];
+  const element = EL[stem];
+  return {
+    ganZhi: stem + branch,
+    stem, branch, element,
+    isAuspicious: element === '土' || element === '金'
+  };
+}
 
 // ===== Phase =====
 function getPhase(data) {
@@ -2032,6 +2100,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Render everything
   renderAll();
+
+  // Auto-sync cat data every 4 hours
+  if (getToken()) {
+    // First auto-sync after 2 minutes (let initial load settle)
+    setTimeout(() => autoSyncCatData(), 2 * 60 * 1000);
+    // Then every 4 hours
+    _catAutoSyncTimer = setInterval(() => autoSyncCatData(), 4 * 60 * 60 * 1000);
+  }
 
   // Auto-sync when tab becomes visible
   document.addEventListener('visibilitychange', () => {
