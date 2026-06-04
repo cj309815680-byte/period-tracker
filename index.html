@@ -312,168 +312,80 @@ body {
   text-align: center; padding: 30px; color: #ccc; font-size: 14px;
 }
 
-/* ===== Learning Tab - Week Calendar ===== */
+/* ===== Learning Tab - Month Calendar ===== */
 .learn-page { padding: 10px 16px 20px; }
 
-.learn-week-nav {
+.learn-month-nav {
   display: flex; align-items: center; gap: 8px;
   margin-bottom: 10px;
 }
-.learn-week-btn {
+.learn-month-btn {
   border: none; background: #f3f4f6; color: #333;
   width: 32px; height: 32px; border-radius: 10px;
   font-size: 14px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
-.learn-week-btn:hover { background: #e5e7eb; }
-.learn-week-label {
+.learn-month-btn:hover { background: #e5e7eb; }
+.learn-month-label {
   flex: 1; text-align: center;
   font-size: 14px; font-weight: 600; color: #333;
 }
-.learn-week-today {
+.learn-month-today {
   width: auto; padding: 0 12px; font-size: 12px;
   background: #EDE9FE; color: #7C3AED;
 }
 
-/* 7-day grid */
+/* Month calendar grid */
 .learn-cal {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
 }
+.learn-cal-header {
+  font-size: 10px; color: #999;
+  text-align: center; padding: 4px 0 6px;
+  font-weight: 500;
+}
+.learn-cal-header.weekend { color: #ccc; }
+
 .learn-day {
   background: #fafafa;
-  border-radius: 10px;
-  padding: 8px 6px;
-  min-height: 110px;
+  border-radius: 8px;
+  padding: 4px;
+  min-height: 80px;
   display: flex; flex-direction: column;
   border: 1px solid transparent;
 }
+.learn-day.other-month { background: transparent; }
 .learn-day.today {
   border-color: #A78BFA; background: #FAF5FF;
 }
-.learn-day.fri {
-  background: #f9fafb;
-}
-.learn-day-header {
-  font-size: 10px; color: #999;
-  text-align: center; margin-bottom: 4px;
+.learn-day-rest { opacity: 0.5; }
+
+.learn-day-num {
+  font-size: 12px; font-weight: 600; color: #333;
+  text-align: center; margin-bottom: 2px;
   line-height: 1;
 }
-.learn-day-date {
-  font-size: 14px; font-weight: 700; color: #333;
-  text-align: center; margin-bottom: 4px;
-}
-.learn-day.today .learn-day-date {
-  color: #7C3AED;
-}
-.learn-day.fri .learn-day-date { color: #bbb; }
+.learn-day.other-month .learn-day-num { color: #ddd; }
+.learn-day.today .learn-day-num { color: #7C3AED; }
 
-.learn-day-courses {
-  display: flex; flex-direction: column; gap: 3px;
-  flex: 1;
+.learn-day-course {
+  font-size: 10px; line-height: 1.4;
+  text-align: center; color: #666;
+  padding: 1px 0;
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.learn-day-dot {
-  font-size: 10px; line-height: 1.3;
-  padding: 2px 4px; border-radius: 5px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  cursor: default;
-}
-.learn-day-dot.c1 { background: #FCE7F3; color: #BE185D; }  /* 服饰设计 */
-.learn-day-dot.c2 { background: #E0E7FF; color: #3730A3; }  /* 色彩课 */
-.learn-day-dot.c3 { background: #FEF3C7; color: #92400E; }  /* 千变少女打卡 */
+.learn-day-course.c1 { font-weight: 500; }
+.learn-day-course.c2 { font-weight: 500; }
+.learn-day-course.c3 { font-weight: 500; }
 
-.learn-day-rest {
-  text-align: center; font-size: 11px;
-  color: #ccc; padding: 12px 0;
+.learn-day-label {
+  font-size: 9px; color: #bbb; text-align: center;
+  line-height: 1.2; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.learn-conflict {
-  background: #FFF1F2; border-radius: 6px;
-  padding: 4px 6px; margin-top: 4px;
-  font-size: 9px; color: #E11D48; text-align: center;
-  font-weight: 600;
-}
-
-/* Legend */
-.learn-legend {
-  display: flex; gap: 12px; flex-wrap: wrap;
-  margin-top: 14px; padding: 10px 0;
-  border-top: 1px solid #f0f0f0;
-}
-
-/* Upcoming courses */
-.learn-upcoming {
-  margin-top: 14px;
-}
-.learn-upcoming-title {
-  font-size: 13px; font-weight: 700; color: #333;
-  margin-bottom: 10px;
-}
-.learn-upcoming-list {
-  display: flex; flex-direction: column; gap: 6px;
-}
-.learn-upcoming-item {
-  display: flex; align-items: center; gap: 10px;
-  background: #fafafa; border-radius: 10px;
-  padding: 10px 12px;
-}
-.learn-upcoming-date {
-  font-size: 12px; color: #999;
-  min-width: 52px; text-align: center; line-height: 1.3;
-}
-.learn-upcoming-date strong {
-  display: block; font-size: 15px; color: #333; font-weight: 700;
-}
-.learn-upcoming-dot {
-  width: 8px; height: 8px; border-radius: 4px; flex-shrink: 0;
-}
-.learn-upcoming-dot.u1 { background: #F472B6; }
-.learn-upcoming-dot.u2 { background: #818CF8; }
-.learn-upcoming-dot.u3 { background: #FBBF24; }
-.learn-upcoming-info {
-  flex: 1; min-width: 0;
-}
-.learn-upcoming-course {
-  font-size: 13px; font-weight: 600; color: #333;
-}
-.learn-upcoming-label {
-  font-size: 11px; color: #888; margin-top: 1px;
-}
-.learn-upcoming-weekday {
-  font-size: 12px; color: #aaa;
-}
-
-.learn-upcoming-empty {
-  text-align: center; padding: 20px;
-  color: #ccc; font-size: 13px;
-}
-
-/* Week stats */
-.learn-week-stats {
-  display: flex; gap: 8px; margin-top: 14px;
-}
-.learn-stat-card {
-  flex: 1; text-align: center;
-  background: #fafafa; border-radius: 10px;
-  padding: 10px 6px;
-}
-.learn-stat-num {
-  font-size: 20px; font-weight: 700; color: #333;
-}
-.learn-stat-label {
-  font-size: 11px; color: #999; margin-top: 2px;
-}
-.learn-legend-item {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 11px; color: #666;
-}
-.learn-legend-dot {
-  width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
-}
-.learn-legend-dot.l1 { background: #FCE7F3; }
-.learn-legend-dot.l2 { background: #E0E7FF; }
-.learn-legend-dot.l3 { background: #FEF3C7; }
 
 /* ===== Top: Phase Bar ===== */
 .phase-bar {
@@ -993,24 +905,15 @@ body {
   <!-- ===== Tab 4: 学习 ===== -->
   <div class="tab-panel" id="panel-learn">
     <div class="learn-page" id="learnPage">
-      <!-- Week navigator -->
-      <div class="learn-week-nav">
-        <button class="learn-week-btn" onclick="learnPrevWeek()">◀</button>
-        <span class="learn-week-label" id="learnWeekLabel"></span>
-        <button class="learn-week-btn" onclick="learnNextWeek()">▶</button>
-        <button class="learn-week-btn learn-week-today" onclick="learnGoToday()">今天</button>
+      <!-- Month navigator -->
+      <div class="learn-month-nav">
+        <button class="learn-month-btn" onclick="learnPrevMonth()">◀</button>
+        <span class="learn-month-label" id="learnMonthLabel"></span>
+        <button class="learn-month-btn" onclick="learnNextMonth()">▶</button>
+        <button class="learn-month-btn learn-month-today" onclick="learnGoThisMonth()">本月</button>
       </div>
-      <!-- 7-day calendar -->
+      <!-- Month calendar -->
       <div class="learn-cal" id="learnCal"></div>
-      <!-- Legend -->
-      <div class="learn-legend" id="learnLegend"></div>
-      <!-- Week stats -->
-      <div class="learn-week-stats" id="learnWeekStats"></div>
-      <!-- Upcoming courses -->
-      <div class="learn-upcoming" id="learnUpcoming">
-        <div class="learn-upcoming-title">📋 近期课程</div>
-        <div class="learn-upcoming-list" id="learnUpcomingList"></div>
-      </div>
     </div>
   </div>
 
@@ -1782,12 +1685,12 @@ function getPhaseInfo(data, dateStr) {
 
 // Course data: { date: 'YYYY-MM-DD', course: 'c1'|'c2'|'c3', label: string }
 const COURSE_DATA = buildCourseData();
-let _learnWeekOffset = 0;
+let _learnMonth = null;  // will be set on init
 
 function buildCourseData() {
   const data = [];
 
-  // c1: 服饰设计 (具体日期)
+  // c1: 服设（服饰设计）
   const fushi = [
     ['2026-06-11','开课语'],['2026-06-13','图形'],['2026-06-16','剪影'],
     ['2026-06-18','带画讲解'],['2026-06-20','饰品设计'],['2026-06-23','物件设计'],
@@ -1801,22 +1704,20 @@ function buildCourseData() {
   ];
   fushi.forEach(([d, label]) => data.push({ date: d, course: 'c1', label }));
 
-  // c2: 色彩课 (7/17-9/26, 周五休息)
-  // 每周：周一理论+带画、周二强化训练、周三答疑、周四纠错、周六理论+带画、周日强化训练
+  // c2: 色彩课（7/17-9/26，周五休息）
   const colorStart = new Date('2026-07-17');
   const colorEnd = new Date('2026-09-26');
-  const colorLabels = { 1:'理论+带画', 2:'强化训练', 3:'本周答疑', 4:'本周纠错', 6:'理论+带画', 0:'强化训练' };
+  const colorLabels = { 1:'理论+带画', 2:'强化训练', 3:'答疑', 4:'纠错', 6:'理论+带画', 0:'强化训练' };
   let d = new Date(colorStart);
   while (d <= colorEnd) {
-    const dow = d.getDay(); // 0=Sun, 5=Fri
+    const dow = d.getDay();
     if (dow !== 5) {
-      const label = colorLabels[dow] || '';
-      data.push({ date: fmtDate(d), course: 'c2', label });
+      data.push({ date: fmtDate(d), course: 'c2', label: colorLabels[dow] || '' });
     }
     d.setDate(d.getDate() + 1);
   }
 
-  // c3: 千变少女打卡 (剩余打卡日期, 不是上课)
+  // c3: 少女（千变少女打卡）
   const qianda = [
     ['2026-06-07','第五次打卡'],['2026-06-10','第六次打卡'],
     ['2026-06-14','第七次打卡'],['2026-06-17','第八次打卡']
@@ -1828,141 +1729,94 @@ function buildCourseData() {
 
 function fmtDate(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
-function getCourseColor(c) {
-  if (c === 'c1') return { dot: 'c1', label: '服饰设计' };
-  if (c === 'c2') return { dot: 'c2', label: '色彩课' };
-  if (c === 'c3') return { dot: 'c3', label: '打卡' };
-}
-
 function renderLearnPage() {
-  // Calculate week start (Monday-based, offset by _learnWeekOffset)
-  const now = new Date();
-  const todayDow = now.getDay(); // 0=Sun
-  const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow; // days to Monday
-  const baseMonday = new Date(now);
-  baseMonday.setDate(now.getDate() + mondayOffset + _learnWeekOffset * 7);
-  
-  const weekDays = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(baseMonday);
-    d.setDate(baseMonday.getDate() + i);
-    weekDays.push(d);
+  if (_learnMonth === null) {
+    const today = new Date();
+    _learnMonth = { year: today.getFullYear(), month: today.getMonth() };
   }
-
-  // Week label
-  const mon = weekDays[0], sun = weekDays[6];
-  document.getElementById('learnWeekLabel').textContent = 
-    `${mon.getMonth()+1}月${mon.getDate()}日 - ${sun.getMonth()+1}月${sun.getDate()}日`;
-
-  // Build calendar grid
+  const { year, month } = _learnMonth;
   const todayStr = getToday();
+  const now = new Date();
+
+  // Label
+  document.getElementById('learnMonthLabel').textContent = `${year}年${month+1}月`;
+
+  // Weekday headers
   const dayNames = ['一','二','三','四','五','六','日'];
-  
-  let html = '';
-  weekDays.forEach((d, i) => {
-    const dateStr = fmtDate(d);
-    const isToday = dateStr === todayStr;
-    const isFri = d.getDay() === 5;
-    const cls = isToday ? 'learn-day today' : (isFri ? 'learn-day fri' : 'learn-day');
-    
-    // Find courses on this day
-    const dayCourses = COURSE_DATA.filter(c => c.date === dateStr);
-    
-    let coursesHtml = '';
-    if (dayCourses.length > 1) {
-      // Multiple courses - show conflict
-      dayCourses.forEach(c => {
-        const { dot, label } = getCourseColor(c.course);
-        coursesHtml += `<div class="learn-day-dot ${dot}">${label}:${c.label}</div>`;
-      });
-      coursesHtml += '<div class="learn-conflict">⚠ 冲突</div>';
-    } else if (dayCourses.length === 1) {
-      const c = dayCourses[0];
-      const { dot, label } = getCourseColor(c.course);
-      coursesHtml += `<div class="learn-day-dot ${dot}">${c.label}</div>`;
-    } else if (isFri) {
-      coursesHtml += '<div class="learn-day-rest">休息</div>';
-    }
+  let html = dayNames.map((n, i) => {
+    const we = i >= 5 ? ' weekend' : '';
+    return `<div class="learn-cal-header${we}">周${n}</div>`;
+  }).join('');
 
-    html += `<div class="${cls}">
-      <div class="learn-day-header">周${dayNames[i]}</div>
-      <div class="learn-day-date">${d.getDate()}</div>
-      <div class="learn-day-courses">${coursesHtml || ''}</div>
-    </div>`;
-  });
-  
-  document.getElementById('learnCal').innerHTML = html;
+  // First day and last day of month
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  const startDow = firstDay.getDay(); // 0=Sun
+  const startOffset = startDow === 0 ? 6 : startDow - 1; // days to fill before 1st (Mon=0)
 
-  // Legend
-  document.getElementById('learnLegend').innerHTML = `
-    <div class="learn-legend-item"><span class="learn-legend-dot l1"></span>服饰设计</div>
-    <div class="learn-legend-item"><span class="learn-legend-dot l2"></span>色彩课（周五休）</div>
-    <div class="learn-legend-item"><span class="learn-legend-dot l3"></span>千变少女打卡</div>
-  `;
-
-  // Week stats
-  const weekCourses = [];
-  weekDays.forEach(d => {
-    const ds = fmtDate(d);
-    COURSE_DATA.filter(c => c.date === ds).forEach(c => weekCourses.push(c));
-  });
-  const conflictDays = weekDays.filter(d => {
-    const ds = fmtDate(d);
-    return COURSE_DATA.filter(c => c.date === ds).length >= 2;
-  }).length;
-  document.getElementById('learnWeekStats').innerHTML = `
-    <div class="learn-stat-card">
-      <div class="learn-stat-num">${weekCourses.length}</div>
-      <div class="learn-stat-label">本周课程</div>
-    </div>
-    <div class="learn-stat-card">
-      <div class="learn-stat-num" style="color:${conflictDays > 0 ? '#E11D48' : '#10B981'}">${conflictDays}</div>
-      <div class="learn-stat-label">冲突日</div>
-    </div>
-    <div class="learn-stat-card">
-      <div class="learn-stat-num">${COURSE_DATA.filter(c => c.date >= getToday()).length}</div>
-      <div class="learn-stat-label">剩余课程</div>
-    </div>
-  `;
-
-  // Upcoming courses
-  const today = getToday();
-  const upcoming = COURSE_DATA
-    .filter(c => c.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 10);
-  
-  if (upcoming.length === 0) {
-    document.getElementById('learnUpcomingList').innerHTML = '<div class="learn-upcoming-empty">🎉 没有即将到来的课程</div>';
-  } else {
-    const courseNames = { c1: '服饰设计', c2: '色彩课', c3: '打卡' };
-    const dotCls = { c1: 'u1', c2: 'u2', c3: 'u3' };
-    const dowMap = ['日','一','二','三','四','五','六'];
-    
-    document.getElementById('learnUpcomingList').innerHTML = upcoming.map(c => {
-      const [y, m, d] = c.date.split('-').map(Number);
-      const dt = new Date(y, m-1, d);
-      const dow = dowMap[dt.getDay()];
-      const todayStr = getToday();
-      const isToday = c.date === todayStr;
-      return `<div class="learn-upcoming-item">
-        <div class="learn-upcoming-date">
-          <strong>${m}月${d}日</strong>
-          ${isToday ? '今天' : '周' + dow}
-        </div>
-        <div class="learn-upcoming-dot ${dotCls[c.course]}"></div>
-        <div class="learn-upcoming-info">
-          <div class="learn-upcoming-course">${courseNames[c.course]}</div>
-          <div class="learn-upcoming-label">${c.label}</div>
-        </div>
-      </div>`;
-    }).join('');
+  // Prev month trailing days
+  const prevLastDay = new Date(year, month, 0).getDate();
+  for (let i = startOffset - 1; i >= 0; i--) {
+    const day = prevLastDay - i;
+    const pm = month === 0 ? 11 : month - 1;
+    const py = month === 0 ? year - 1 : year;
+    const ds = fmtDate(new Date(py, pm, day));
+    html += renderDayCell(day, 'other-month', ds, todayStr);
   }
+
+  // Current month days
+  for (let day = 1; day <= totalDays; day++) {
+    const ds = fmtDate(new Date(year, month, day));
+    const isToday = ds === todayStr;
+    html += renderDayCell(day, isToday ? 'today' : '', ds, todayStr);
+  }
+
+  // Next month leading days to fill last row
+  const remaining = (startOffset + totalDays) % 7;
+  if (remaining > 0) {
+    for (let day = 1; day <= 7 - remaining; day++) {
+      const nm = month === 11 ? 0 : month + 1;
+      const ny = month === 11 ? year + 1 : year;
+      const ds = fmtDate(new Date(ny, nm, day));
+      html += renderDayCell(day, 'other-month', ds, todayStr);
+    }
+  }
+
+  document.getElementById('learnCal').innerHTML = html;
 }
 
-function learnPrevWeek() { _learnWeekOffset--; renderLearnPage(); }
-function learnNextWeek() { _learnWeekOffset++; renderLearnPage(); }
-function learnGoToday() { _learnWeekOffset = 0; renderLearnPage(); }
+function renderDayCell(dayNum, extraCls, dateStr, todayStr) {
+  const dayCourses = COURSE_DATA.filter(c => c.date === dateStr);
+  const courseNames = { c1: '服设', c2: '色彩', c3: '少女' };
+  
+  let coursesHtml = '';
+  dayCourses.forEach(c => {
+    coursesHtml += `<div class="learn-day-course ${c.course}">${courseNames[c.course]}</div>`;
+    coursesHtml += `<div class="learn-day-label">${c.label}</div>`;
+  });
+
+  return `<div class="learn-day ${extraCls}">
+    <div class="learn-day-num">${dayNum}</div>
+    ${coursesHtml}
+  </div>`;
+}
+
+function learnPrevMonth() {
+  if (_learnMonth.month === 0) { _learnMonth.month = 11; _learnMonth.year--; }
+  else _learnMonth.month--;
+  renderLearnPage();
+}
+function learnNextMonth() {
+  if (_learnMonth.month === 11) { _learnMonth.month = 0; _learnMonth.year++; }
+  else _learnMonth.month++;
+  renderLearnPage();
+}
+function learnGoThisMonth() {
+  const today = new Date();
+  _learnMonth = { year: today.getFullYear(), month: today.getMonth() };
+  renderLearnPage();
+}
 
 // ===== Render =====
 
