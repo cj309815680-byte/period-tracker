@@ -646,21 +646,41 @@ async function syncFromCloud() {
   }
   showSync('loading', '从云端同步...');
   try {
-    const resp = await fetch(GH_API, {
-      headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
-    });
-    if (resp.status === 404) {
-      // File doesn't exist yet, use local data
-      _data = getData();
-      showSync('ok', '云端无数据，使用本地');
+    // Use raw.githubusercontent.com for reading (no auth needed, no CORS issues)
+    const rawUrl = 'https://raw.githubusercontent.com/cj309815680-byte/period-tracker/main/data.json?t=' + Date.now();
+    const resp = await fetch(rawUrl, { cache: 'no-store' });
+    if (!resp.ok) {
+      // Fallback: try API for sha
+      const apiResp = await fetch(GH_API, {
+        headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
+      });
+      if (apiResp.status === 404) {
+        _data = getData();
+        showSync('ok', '云端无数据，使用本地');
+        renderAll();
+        return;
+      }
+      if (!apiResp.ok) throw new Error('HTTP ' + apiResp.status);
+      const json = await apiResp.json();
+      ghSha = json.sha;
+      const content = decodeURIComponent(escape(atob(json.content)));
+      const data = JSON.parse(content);
+      _data = data;
+      localStorage.setItem('xiaob_bodylog_v2', JSON.stringify(data));
+      showSync('ok', '已同步');
       renderAll();
       return;
     }
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const json = await resp.json();
-    ghSha = json.sha;
-    const content = decodeURIComponent(escape(atob(json.content)));
-    const data = JSON.parse(content);
+    const data = await resp.json();
+    
+    // Get sha for future writes
+    const apiResp = await fetch(GH_API, {
+      headers: { 'Authorization': 'token ' + token, 'Cache-Control': 'no-cache' }
+    });
+    if (apiResp.ok) {
+      const json = await apiResp.json();
+      ghSha = json.sha;
+    }
     
     // If cloud is empty but local has data, offer to upload
     const localData = getData();
@@ -681,8 +701,8 @@ async function syncFromCloud() {
     }
     renderAll();
   } catch (e) {
-    showSync('error', '同步失败');
-    console.log('Sync failed:', e.message);
+    showSync('error', '同步失败：' + e.message);
+    console.log('Sync failed:', e);
     _data = getData();
     renderAll();
   }
