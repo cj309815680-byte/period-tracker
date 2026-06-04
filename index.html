@@ -845,7 +845,14 @@ body {
 <body>
 <div class="app" id="app">
 
-  <!-- Header removed -->
+  <!-- Header Bar -->
+  <div class="header-bar">
+    <span class="app-title">小B</span>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="refreshCatData()" title="同步猫猫状态">🔄</button>
+      <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
+    </div>
+  </div>
 
   <!-- ===== Tab 1: 今日 ===== -->
   <div class="tab-panel active" id="panel-today">
