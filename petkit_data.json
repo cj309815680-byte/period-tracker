@@ -1,74 +1,52 @@
 {
-  "updated_at": "2026-06-04T13:53:26.867078+08:00",
+  "updated_at": "2026-06-05T20:06:40.351155+08:00",
   "litter_box": {
     "name": "无处安放的猫厕所",
-    "model": "Petkit Pura Max",
-    "firmware": "1.652",
+    "id": 118294,
     "box_full": false,
-    "sand_lack": false,
-    "sand_percent": 85,
-    "sand_weight": 1807,
-    "overall": 1,
-    "box_state": 1,
-    "liquid_empty": false,
-    "liquid_lack": false,
-    "deodorant_left_days": 0,
-    "error_msg": null,
-    "error_code": null,
-    "today_times": 2,
-    "total_times": 2440,
-    "last_out_seconds": 93,
-    "pet_out_tips": [
-      {
-        "pet_name": "落雨",
-        "pet_id": 1452497,
-        "out_day": 1
-      }
-    ]
+    "sand_percent": 80,
+    "sand_type": 1,
+    "sand_weight": 1813,
+    "last_odor": null,
+    "pet_out_tips": null
   },
   "feeder": {
     "name": "智能喂食器 SOLO 可视版",
-    "model": "Yumshare Solo With Camera",
-    "firmware": "865",
+    "id": 460794,
     "food": 2,
-    "door": 1,
-    "block": null,
-    "overall": 1,
-    "desiccant_left_days": 30,
-    "error_msg": null,
-    "error_code": null,
-    "feed_plan": [],
-    "eat_records": [
-      {
-        "time": null,
-        "duration": 0,
-        "pet_name": null
-      }
-    ],
-    "feed_records": [
-      {
-        "time": null,
-        "amount": 50,
-        "plan_name": ""
-      }
+    "eat_count": 12,
+    "eat_avg": 141,
+    "eat_times": [
+      "04:35",
+      "04:41",
+      "04:56",
+      "05:33",
+      "06:05",
+      "10:31",
+      "11:55",
+      "12:33",
+      "16:27",
+      "17:21",
+      "18:28",
+      "18:36"
     ]
   },
   "pets": [
     {
       "id": 1452495,
       "name": "小黑大爷",
-      "weight": 5977,
+      "weight": 5869,
       "last_device": "无处安放的猫厕所",
-      "last_litter_time": "01-21 22:35",
-      "last_litter_duration": 93
+      "last_litter_time": "01-21 22:37",
+      "last_litter_duration": 88
     },
     {
       "id": 1452497,
       "name": "落雨",
-      "weight": 0,
-      "last_device": "Unknown",
-      "last_litter_time": null,
-      "last_litter_duration": 0
+      "weight": 3816,
+      "last_device": "无处安放的猫厕所",
+      "last_litter_time": "01-21 22:36",
+      "last_litter_duration": 55
     }
   ]
 }
