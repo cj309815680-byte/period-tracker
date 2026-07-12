@@ -450,6 +450,24 @@ body {
 .phase-bar.ovulation { background: linear-gradient(135deg, #A78BFA, #8B5CF6); }
 .phase-bar.luteal { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
 .phase-bar.unknown { background: #e5e5e5; color: #888; }
+.phase-bar.late { background: linear-gradient(135deg, #FB7185, #EF4444); }
+
+/* "月经来了" button in phase bar */
+.phase-bar .bar-action {
+  margin-left: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.9);
+  color: #EC4899;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+.phase-bar .bar-action:hover { background: #fff; }
+.phase-bar.late .bar-action { color: #EF4444; }
 
 /* ===== Mini Month Strip ===== */
 .month-strip {
@@ -579,6 +597,7 @@ body {
 .phase-tag-follicular { background: #3B82F6; }
 .phase-tag-ovulation { background: #8B5CF6; }
 .phase-tag-luteal { background: #F59E0B; }
+.phase-tag-late { background: #EF4444; }
 
 /* Period flow line */
 .entry-period {
@@ -651,6 +670,7 @@ body {
 .entry-card:has(.phase-tag-follicular) .entry-prediction { border-left-color: #3B82F6; background: #EFF6FF; color: #1D4ED8; }
 .entry-card:has(.phase-tag-ovulation) .entry-prediction { border-left-color: #8B5CF6; background: #F5F3FF; color: #6D28D9; }
 .entry-card:has(.phase-tag-luteal) .entry-prediction { border-left-color: #F59E0B; background: #FFFBEB; color: #B45309; }
+.entry-card:has(.phase-tag-late) .entry-prediction { border-left-color: #EF4444; background: #FEF2F2; color: #B91C1C; }
 
 /* Empty diary */
 .empty-diary {
@@ -934,6 +954,7 @@ body {
       </span>
       <span id="phaseText">请先设置经期日期</span>
       <span class="bar-detail" id="phaseDay"></span>
+      <button class="bar-action" id="periodStartBtn" style="display:none" onclick="markPeriodStart()">月经来了</button>
     </div>
 
     <!-- Mini Month Strip -->
@@ -1195,7 +1216,7 @@ function renderToday() {
     const daysUntil = diffDays(today, nextPeriodStr);
     
     if (daysUntil <= 0) {
-      // Already in period or late
+      // 已过预期经期
       const phase = getPhase(data);
       if (phase && phase.phase === 'menses') {
         reminders.push({
@@ -1203,6 +1224,14 @@ function renderToday() {
           title: '正在经期中',
           desc: `${phase.detail}`,
           badge: '进行中', badgeClass: 'urgent'
+        });
+      } else if (phase && phase.phase === 'late') {
+        const lateDays = -daysUntil;
+        reminders.push({
+          icon: '⏰', iconClass: 'period',
+          title: '经期已延迟',
+          desc: `已超过预期 ${lateDays} 天，确认来了请点「月经来了」`,
+          badge: `延迟${lateDays}天`, badgeClass: 'urgent'
         });
       }
     } else if (daysUntil <= 2) {
@@ -1364,7 +1393,11 @@ function renderTodaySummary(data) {
   if (s.lastPeriodStart) {
     const p = getPhase(data);
     if (p) {
-      rows.push({ label: '当前阶段', val: PHASE_NAMES[p.phase] + ' · 第' + p.day + '天' });
+      if (p.phase === 'late') {
+        rows.push({ label: '当前阶段', val: PHASE_NAMES[p.phase] + ' · 延迟' + (p.day - s.cycleLength) + '天' });
+      } else {
+        rows.push({ label: '当前阶段', val: PHASE_NAMES[p.phase] + ' · 第' + p.day + '天' });
+      }
     }
   }
 
@@ -1708,7 +1741,7 @@ function dayName(dow) { return ['日','一','二','三','四','五','六'][dow];
 function diffDays(d1,d2) { return Math.floor((new Date(d2)-new Date(d1))/(86400000)); }
 function prevDay(d) { const dt=new Date(d); dt.setDate(dt.getDate()-1); return fmt(dt.getFullYear(),dt.getMonth(),dt.getDate()); }
 
-const PHASE_NAMES = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期' };
+const PHASE_NAMES = { menses:'经期', follicular:'卵泡期', ovulation:'排卵期', luteal:'黄体期', late:'经期延迟' };
 const COURSE_NAMES = { c1: '服设', c2: '色彩', c3: '少女' };
 const COURSE_TAGS = { c1: '服饰设计', c2: '色彩课', c3: '千变少女' };
 
@@ -1758,7 +1791,14 @@ function getPhase(data) {
   }
   const cl = s.cycleLength;
   const pl = s.periodLength;
-  const day = ((dayInCycle - 1) % cl) + 1;
+
+  // 超过周期天数 → 经期延迟，不自动循环
+  if (dayInCycle > cl) {
+    const lateDays = dayInCycle - cl;
+    return { phase:'late', day:dayInCycle, detail:`已延迟 ${lateDays} 天 · 周期第${dayInCycle}天` };
+  }
+
+  const day = dayInCycle;
   if (day <= pl) {
     return { phase:'menses', day, detail:`经期第${day}天 · 还剩${pl-day+1}天` };
   }
@@ -1778,7 +1818,14 @@ function getPhaseInfo(data, dateStr) {
   const d = diffDays(s.lastPeriodStart, dateStr) + 1;
   if (d <= 0) return null;
   const cl = s.cycleLength, pl = s.periodLength;
-  const cycleDay = ((d - 1) % cl) + 1;
+
+  // 超过周期天数 → 延迟
+  if (d > cl) {
+    const lateDays = d - cl;
+    return { phase:'late', phaseDay:lateDays, phaseTotal:null, cycleDay:d, prediction:`经期已延迟 ${lateDays} 天，注意观察身体状态 🔍` };
+  }
+
+  const cycleDay = d;
   const ovDay = cl - 14;
   const ovWindow = 3;
 
@@ -1980,12 +2027,14 @@ function renderPhaseBar() {
   const p = getPhase(data);
   const bar = document.getElementById('phaseBar');
   const emojiEl = document.getElementById('phaseEmoji');
+  const btn = document.getElementById('periodStartBtn');
 
   if (!p) {
     bar.className = 'phase-bar unknown';
     emojiEl.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;"><use href="#icon-calendar"></use></svg>';
     document.getElementById('phaseText').textContent = '请先设置经期日期';
     document.getElementById('phaseDay').textContent = '';
+    btn.style.display = 'none';
     return;
   }
 
@@ -1993,6 +2042,27 @@ function renderPhaseBar() {
   emojiEl.innerHTML = '<svg class="icon" style="width: 20px; height: 20px;"><use href="#icon-calendar"></use></svg>';
   document.getElementById('phaseText').textContent = PHASE_NAMES[p.phase];
   document.getElementById('phaseDay').textContent = p.detail;
+
+  // 经期延迟 或 黄体期最后3天 → 显示"月经来了"按钮
+  const cl = data.settings.cycleLength;
+  if (p.phase === 'late') {
+    btn.style.display = 'block';
+    btn.textContent = '月经来了';
+  } else if (p.phase === 'luteal' && p.day >= cl - 2) {
+    btn.style.display = 'block';
+    btn.textContent = '月经来了';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+// 用户确认月经来了 → 开始新周期
+function markPeriodStart() {
+  const data = getData();
+  const today = getToday();
+  data.settings.lastPeriodStart = today;
+  saveLocal(data);
+  renderAll();
 }
 
 function renderMiniCal() {
@@ -2092,7 +2162,11 @@ function renderDiary() {
     html += '<div class="entry-header">';
     html += `<span class="entry-date">${month+1}月${day}日 <span class="entry-weekday">周${dow}</span></span>`;
     if (info) {
-      html += `<span class="entry-phase-tag phase-tag-${info.phase}">${PHASE_NAMES[info.phase]}第${info.phaseDay}天</span>`;
+      if (info.phase === 'late') {
+        html += `<span class="entry-phase-tag phase-tag-late">经期延迟${info.phaseDay}天</span>`;
+      } else {
+        html += `<span class="entry-phase-tag phase-tag-${info.phase}">${PHASE_NAMES[info.phase]}第${info.phaseDay}天</span>`;
+      }
     }
     html += '</div>';
 
@@ -2186,11 +2260,23 @@ function saveRecord() {
   const note = document.getElementById('noteInput').value;
 
   if (selectedFlow !== 'none') {
-    if (!data.settings.lastPeriodStart || currentDate < data.settings.lastPeriodStart) {
-      const prev = prevDay(currentDate);
-      const prevRec = data.records[prev];
-      if (!prevRec || prevRec.flow === 'none') {
+    // 判断这天是否是新经期的开始（前一天没有经血记录）
+    const prev = prevDay(currentDate);
+    const prevRec = data.records[prev];
+    const isNewPeriodStart = !prevRec || prevRec.flow === 'none';
+
+    if (isNewPeriodStart) {
+      if (!data.settings.lastPeriodStart) {
+        // 还没设过 → 直接设
         data.settings.lastPeriodStart = currentDate;
+      } else {
+        // 已有周期 → 判断是否超出了当前经期持续天数
+        const dayInCycle = diffDays(data.settings.lastPeriodStart, currentDate) + 1;
+        if (dayInCycle > data.settings.periodLength) {
+          // 超出经期天数 → 视为新周期开始
+          data.settings.lastPeriodStart = currentDate;
+        }
+        // 否则是当前经期内的某天，不更新
       }
     }
   }
