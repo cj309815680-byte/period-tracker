@@ -2270,9 +2270,12 @@ function saveRecord() {
         // 还没设过 → 直接设
         data.settings.lastPeriodStart = currentDate;
       } else {
-        // 已有周期 → 判断是否超出了当前经期持续天数
+        // 已有周期 → 判断当前日期与经期开始日的关系
         const dayInCycle = diffDays(data.settings.lastPeriodStart, currentDate) + 1;
-        if (dayInCycle > data.settings.periodLength) {
+        if (dayInCycle <= 0) {
+          // 记录日期在当前经期开始日之前 → 修正为更早的日期
+          data.settings.lastPeriodStart = currentDate;
+        } else if (dayInCycle > data.settings.periodLength) {
           // 超出经期天数 → 视为新周期开始
           data.settings.lastPeriodStart = currentDate;
         }
