@@ -849,7 +849,286 @@ body {
   border-radius: 8px; font-size: 14px; text-align: center;
 }
 .setting-input:focus { outline: none; border-color: #EC4899; }
-</style>
+
+/* ===== Fortune Tab (五行运势) ===== */
+.fortune-page { padding: 14px 16px 20px; }
+
+/* Today fortune card */
+.fortune-card {
+  border-radius: 16px;
+  padding: 18px 16px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.fortune-card.luck-great { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+.fortune-card.luck-good { background: linear-gradient(135deg, #F3F4F6, #E5E7EB); }
+.fortune-card.luck-neutral { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); }
+.fortune-card.luck-bad { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+.fortune-card.luck-worst { background: linear-gradient(135deg, #FEE2E2, #FECACA); }
+
+.fortune-card-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.fortune-date-info { flex: 1; }
+.fortune-date-main {
+  font-size: 22px; font-weight: 700; color: #1a1a1a;
+}
+.fortune-date-sub {
+  font-size: 12px; color: #666; margin-top: 2px;
+}
+.fortune-ganzhi {
+  font-size: 11px; color: #888; margin-top: 4px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.fortune-ganzhi span {
+  background: rgba(255,255,255,0.6); padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Luck circle */
+.fortune-luck-circle {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.fortune-luck-circle .luck-icon { font-size: 24px; }
+.fortune-luck-circle .luck-text { font-size: 11px; font-weight: 700; margin-top: 1px; }
+
+/* Element + Shishen badges */
+.fortune-badges {
+  display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.fortune-badge {
+  font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: 16px;
+  background: rgba(255,255,255,0.7);
+}
+.fortune-badge .badge-label { color: #888; font-weight: 400; margin-right: 3px; }
+
+/* Fortune description */
+.fortune-desc {
+  font-size: 14px; line-height: 1.7; color: #444;
+  background: rgba(255,255,255,0.5);
+  border-radius: 10px; padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+/* Yi / Ji */
+.fortune-yiji {
+  display: flex; gap: 10px; margin-bottom: 12px;
+}
+.fortune-yi, .fortune-ji {
+  flex: 1; background: rgba(255,255,255,0.6);
+  border-radius: 10px; padding: 10px 12px;
+}
+.fortune-yi-title {
+  font-size: 12px; font-weight: 700; color: #16a34a;
+  margin-bottom: 4px;
+}
+.fortune-ji-title {
+  font-size: 12px; font-weight: 700; color: #dc2626;
+  margin-bottom: 4px;
+}
+.fortune-yi-content, .fortune-ji-content {
+  font-size: 12px; color: #555; line-height: 1.6;
+}
+
+/* Extra info (chong, sha, etc) */
+.fortune-extra {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.fortune-extra-item {
+  font-size: 11px; color: #666;
+  background: rgba(255,255,255,0.5);
+  padding: 3px 10px; border-radius: 12px;
+}
+.fortune-extra-item .ex-label { color: #aaa; }
+
+/* Fortune calendar */
+.fortune-cal-nav {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.fortune-cal-btn {
+  border: none; background: #f3f4f6; color: #333;
+  width: 32px; height: 32px; border-radius: 10px;
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.fortune-cal-btn:hover { background: #e5e7eb; }
+.fortune-cal-label {
+  flex: 1; text-align: center;
+  font-size: 14px; font-weight: 600; color: #333;
+}
+.fortune-cal-today {
+  width: auto; padding: 0 12px; font-size: 12px;
+  background: #FEF3C7; color: #92400E;
+}
+
+.fortune-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.fortune-cal-header {
+  font-size: 10px; color: #999;
+  text-align: center; padding: 4px 0 6px;
+  font-weight: 500;
+}
+.fortune-cal-header.weekend { color: #ccc; }
+
+.fortune-day {
+  border-radius: 8px;
+  padding: 4px 2px;
+  min-height: 52px;
+  display: flex; flex-direction: column;
+  align-items: center;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.fortune-day:active { transform: scale(0.95); }
+.fortune-day.other-month { opacity: 0.3; }
+.fortune-day.today { border-color: #F59E0B; }
+.fortune-day.selected { border-color: #EC4899; }
+
+.fortune-day-num {
+  font-size: 13px; font-weight: 600; color: #333;
+  line-height: 1;
+}
+.fortune-day-el {
+  font-size: 9px; font-weight: 600;
+  margin-top: 2px; line-height: 1;
+  padding: 1px 5px; border-radius: 6px;
+}
+
+/* Element colors for calendar */
+.el-tu { background: #FEF3C7; color: #92400E; }
+.el-jin { background: #F3F4F6; color: #4B5563; }
+.el-shui { background: #DBEAFE; color: #1E40AF; }
+.el-mu { background: #D1FAE5; color: #065F46; }
+.el-huo { background: #FEE2E2; color: #991B1B; }
+
+.fortune-day-bg-tu { background: #FEF3C7; }
+.fortune-day-bg-jin { background: #F3F4F6; }
+.fortune-day-bg-shui { background: #DBEAFE; }
+.fortune-day-bg-mu { background: #D1FAE5; }
+.fortune-day-bg-huo { background: #FEE2E2; }
+
+/* Legend */
+.fortune-legend {
+  display: flex; justify-content: center; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 14px;
+}
+.fortune-legend-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: #888;
+}
+.fortune-legend-dot {
+  width: 12px; height: 12px; border-radius: 3px;
+}
+
+/* Bazi summary */
+.fortune-bazi {
+  background: #fafafa; border-radius: 14px;
+  padding: 14px 16px; margin-bottom: 14px;
+}
+.fortune-bazi-title {
+  font-size: 13px; font-weight: 600; color: #999;
+  margin-bottom: 10px;
+}
+.fortune-bazi-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0; font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.fortune-bazi-row:last-child { border-bottom: none; }
+.fortune-bazi-label { color: #888; }
+.fortune-bazi-val { color: #333; font-weight: 500; }
+
+/* Day detail sheet */
+.fortune-day-detail {
+  background: rgba(255,255,255,0.95); border-radius: 14px;
+  padding: 16px; margin-bottom: 14px; display: none;
+}
+.fortune-day-detail.show { display: block; }
+
+/* ===== 每日建议四格 ===== */
+.fortune-advice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 0;
+}
+.fortune-advice-item {
+  background: rgba(255,255,255,0.6);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.fortune-advice-item .adv-icon {
+  font-size: 16px; margin-right: 4px;
+}
+.fortune-advice-item .adv-label {
+  font-weight: 600; color: #555; font-size: 11px;
+  margin-bottom: 3px; display: block;
+}
+.fortune-advice-item .adv-text {
+  color: #444; font-size: 12px;
+}
+
+/* ===== 五行课堂（可折叠） ===== */
+.fortune-lesson {
+  background: rgba(255,255,255,0.5);
+  border-radius: 10px;
+  margin: 14px 0 4px;
+  overflow: hidden;
+}
+.fortune-lesson-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer; user-select: none;
+  font-size: 12px; font-weight: 600; color: #666;
+}
+.fortune-lesson-toggle .lesson-icon {
+  font-size: 14px; margin-right: 6px;
+}
+.fortune-lesson-toggle .lesson-chevron {
+  font-size: 12px; color: #999;
+  transition: transform 0.2s;
+}
+.fortune-lesson.open .lesson-chevron {
+  transform: rotate(180deg);
+}
+.fortune-lesson-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 12px;
+}
+.fortune-lesson.open .fortune-lesson-body {
+  max-height: 300px;
+  padding: 0 12px 12px;
+}
+.fortune-lesson-title {
+  font-size: 12px; font-weight: 600; color: #555;
+  margin-bottom: 6px;
+}
+.fortune-lesson-content {
+  font-size: 12px; color: #666; line-height: 1.7;
+}
+
+/* 十神通俗标签 */
+.fortune-badge .badge-casual {
+  font-size: 10px; color: #888; margin-left: 2px;
+}
+<script src="lunar.js"></script>
 </head>
 <body>
 <!-- SVG Icon Definitions (Line Style) -->
@@ -1055,6 +1334,50 @@ body {
     </div>
   </div>
 
+  <!-- ===== Tab 5: 五行运势 ===== -->
+  <div class="tab-panel" id="panel-fortune">
+    <div class="fortune-page" id="fortunePage">
+      <!-- Today fortune card (rendered by JS) -->
+      <div id="fortuneTodayCard"></div>
+
+      <!-- Bazi summary -->
+      <div class="fortune-bazi" id="fortuneBazi">
+        <div class="fortune-bazi-title">🔮 我的命盘</div>
+        <div class="fortune-bazi-row"><span class="fortune-bazi-label">日主</span><span class="fortune-bazi-val">庚金 · 阳金</span></div>
+        <div class="fortune-bazi-row"><span class="fortune-bazi-label">四柱</span><span class="fortune-bazi-val">丁卯 · 甲辰 · 庚子 · 己卯</span></div>
+        <div class="fortune-bazi-row"><span class="fortune-bazi-label">喜用神</span><span class="fortune-bazi-val">土（印星）· 金（比劫）</span></div>
+        <div class="fortune-bazi-row"><span class="fortune-bazi-label">忌神</span><span class="fortune-bazi-val">火（官杀）· 水（食伤）· 木（财星）</span></div>
+      </div>
+
+      <!-- Day detail (when clicking a calendar day) -->
+      <div class="fortune-day-detail" id="fortuneDayDetail"></div>
+
+      <!-- Month navigator -->
+      <div class="fortune-cal-nav">
+        <button class="fortune-cal-btn" onclick="fortunePrevMonth()">
+          <svg class="icon"><use href="#icon-chevron-left"></use></svg>
+        </button>
+        <span class="fortune-cal-label" id="fortuneMonthLabel"></span>
+        <button class="fortune-cal-btn" onclick="fortuneNextMonth()">
+          <svg class="icon"><use href="#icon-chevron-right"></use></svg>
+        </button>
+        <button class="fortune-cal-btn fortune-cal-today" onclick="fortuneGoThisMonth()">本月</button>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="fortune-cal" id="fortuneCal"></div>
+
+      <!-- Legend -->
+      <div class="fortune-legend">
+        <div class="fortune-legend-item"><div class="fortune-legend-dot el-tu"></div>土·大吉</div>
+        <div class="fortune-legend-item"><div class="fortune-legend-dot el-jin"></div>金·吉</div>
+        <div class="fortune-legend-item"><div class="fortune-legend-dot el-shui"></div>水·平</div>
+        <div class="fortune-legend-item"><div class="fortune-legend-dot el-mu"></div>木·小凶</div>
+        <div class="fortune-legend-item"><div class="fortune-legend-dot el-huo"></div>火·凶</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Bottom Tab Bar ===== -->
   <div class="tab-bar">
     <div class="tab-item active" data-tab="today" onclick="switchTab('today')">
@@ -1068,6 +1391,9 @@ body {
     </div>
     <div class="tab-item" data-tab="learn" onclick="switchTab('learn')">
       <span class="tab-icon"><svg class="icon icon-lg"><use href="#icon-learn"></use></svg></span>学习
+    </div>
+    <div class="tab-item" data-tab="fortune" onclick="switchTab('fortune')">
+      <span class="tab-icon"><svg class="icon icon-lg"><use href="#icon-calendar"></use></svg></span>运势
     </div>
   </div>
 </div>
@@ -1221,6 +1547,7 @@ function switchTab(tab) {
   if (tab === 'diary') renderDiaryTab();
   if (tab === 'expense') renderExpensePage();
   if (tab === 'learn') renderLearnPage();
+  if (tab === 'fortune') renderFortunePage();
 }
 
 // ===== Today Dashboard =====
@@ -2469,6 +2796,474 @@ function clearAll() {
   saveLocal(_data);
   closeSettings();
   renderAll();
+}
+
+// ===== Fortune (五行运势) =====
+
+// 日主: 庚金, 身弱, 喜用神: 土(印星) 金(比劫)
+const DAY_MASTER = '庚';
+const DAY_MASTER_EL = '金';
+
+// 天干五行
+const STEM_EL_MAP = {'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+// 地支五行
+const BRANCH_EL_MAP = {'寅':'木','卯':'木','巳':'火','午':'火','申':'金','酉':'金','亥':'水','子':'水','辰':'土','戌':'土','丑':'土','未':'土'};
+
+// 庚金日主的十神 (日柱天干 -> 十神)
+const SHISHEN_MAP = {
+  '庚':'比肩','辛':'劫财',
+  '壬':'食神','癸':'伤官',
+  '甲':'偏财','乙':'正财',
+  '丙':'七杀','丁':'正官',
+  '戊':'偏印','己':'正印'
+};
+
+// 吉凶等级 (基于日柱天干五行 vs 庚金喜用)
+// 土=大吉, 金=吉, 水=平, 木=小凶, 火=凶
+const LUCK_LEVEL = {
+  '土': { level:'great', text:'大吉', icon:'✨', cls:'luck-great', elCls:'el-tu' },
+  '金': { level:'good', text:'吉', icon:'👍', cls:'luck-good', elCls:'el-jin' },
+  '水': { level:'neutral', text:'平', icon:'😐', cls:'luck-neutral', elCls:'el-shui' },
+  '木': { level:'bad', text:'小凶', icon:'⚠️', cls:'luck-bad', elCls:'el-mu' },
+  '火': { level:'worst', text:'凶', icon:'🚫', cls:'luck-worst', elCls:'el-huo' }
+};
+
+// 十神运势文案 (日柱天干 -> 运势描述 + 白话建议 + 课堂)
+const SHISHEN_FORTUNE = {
+  '戊': { // 偏印
+    casual: '灵感日',
+    desc: '今天你的直觉特别敏锐，脑子转得快，适合学习新东西或者独自琢磨问题。灵感会突然蹦出来，记下来！但别钻牛角尖，想太多反而累。',
+    work: '适合研究、学习、独立思考、写方案。不适合做需要多人配合的杂事。',
+    social: '今天适合一个人待着，社交能量偏低，回消息可以慢点，不勉强自己。',
+    health: '注意脾胃，容易边想事情边乱吃东西。晚上早点睡，脑子停不下来。',
+    money: '别冲动购物，今天容易"觉得需要"而买一堆用不上的东西。',
+    lesson: {
+      title: '今日五行小课堂：什么是"偏印"？',
+      content: '你是庚金（阳金），土生金，所以土就是你的"印星"——代表学习、知识、灵感。戊土是"偏印"，像偏门学问、第六感、不循规蹈矩的想法。偏印日=你的直觉特别准，但容易想太多。'
+    }
+  },
+  '己': { // 正印
+    casual: '贵人日',
+    desc: '今天容易遇到帮你的人——上司、长辈、或者突然给你好建议的朋友。适合请教、面试、签合同，是被滋养的一天。',
+    work: '适合面试、汇报、请教前辈、签文件。有贵人相助，大胆开口问。',
+    social: '对长辈和领导客气点，今天他们愿意帮你。适合请教的姿态。',
+    health: '状态不错，适合养生、调理。注意饮食规律。',
+    money: '正财稳定，适合做长期理财规划，不宜投机。',
+    lesson: {
+      title: '今日五行小课堂：什么是"正印"？',
+      content: '你是庚金，土生金，土是你的"印"。己土是"正印"，像正规教育、母亲、贵人——正统、温暖、滋养你的力量。正印日=有人罩着你，适合抱大腿。'
+    }
+  },
+  '庚': { // 比肩
+    casual: '自我日',
+    desc: '今天精力旺盛，自信满满，适合主动出击。跟朋友、同事相处和谐，但别太固执，听点别人的意见。',
+    work: '适合竞争、谈判、争取资源。团队合作也OK，但别独断。',
+    social: '朋友运好，适合约饭、运动。但别跟朋友争输赢。',
+    health: '精力充沛，适合运动。注意别太逞强，累了就休息。',
+    money: '合作求财有利，但别跟朋友有金钱纠葛。',
+    lesson: {
+      title: '今日五行小课堂：什么是"比肩"？',
+      content: '你是庚金，今天日干也是庚——跟自己一样的五行，叫"比肩"。像兄弟、竞争对手、另一个自己。比肩日=你能量满格，但容易固执。'
+    }
+  },
+  '辛': { // 劫财
+    casual: '社交日',
+    desc: '今天人际关系特别活跃，朋友来约、消息不断。慷慨大方是好事，但小心钱包——容易请客、冲动消费。',
+    work: '适合社交型工作、见客户、团建。不适合独自埋头苦干。',
+    social: '人气旺，适合聚会、认识新朋友。但别充大头。',
+    health: '别熬夜社交，注意呼吸道。喝酒适量。',
+    money: '破财日！容易冲动消费、借钱给别人。今天管住手。',
+    lesson: {
+      title: '今日五行小课堂：什么是"劫财"？',
+      content: '你是庚金，辛金跟你一样是"金"，但阴阳不同（你是阳，辛是阴）。劫财就像"来分你钱的朋友"——人缘好，但容易破财。'
+    }
+  },
+  '壬': { // 食神
+    casual: '享受日',
+    desc: '今天心情不错，有口福，适合享受生活。灵感也有，适合创作、表达。但别放纵过头，该干的事还是要干。',
+    work: '适合创意工作、写作、设计、表达。不适合死板的重复劳动。',
+    social: '心情好，人缘自然好。适合轻松聚会，别聊太严肃的话题。',
+    health: '注意别暴饮暴食，美食诱惑大。适合轻运动。',
+    money: '小钱不断，享受型消费。大件先缓缓。',
+    lesson: {
+      title: '今日五行小课堂：什么是"食神"？',
+      content: '你是庚金，金生水，水就是你"生出来的"东西——代表才华、作品、享受、口福。壬水食神日=你的才华和食欲都在线。'
+    }
+  },
+  '癸': { // 伤官
+    casual: '表达日',
+    desc: '今天脑子转得飞快，口才特别好，表达欲爆棚。适合写东西、演讲、创意。但说话别太冲，容易得罪人。',
+    work: '适合创新、写方案、表达观点。不适合按部就班、听人指挥。',
+    social: '口才好，但容易"话太直"。说话前先想想，别顶撞领导。',
+    health: '容易精神紧张、失眠。晚上别刷手机，早点睡。',
+    money: '创意能变现，但别靠"感觉"投资。今天脑子太活，容易冲动。',
+    lesson: {
+      title: '今日五行小课堂：什么是"伤官"？',
+      content: '你是庚金，金生水，癸水就是"伤官"。伤官=伤害正官（规矩/上司）的力量。所以今天你特别有主见、不服管，聪明但容易得罪人。'
+    }
+  },
+  '甲': { // 偏财
+    casual: '机会日',
+    desc: '今天可能有意外的小财运，或者突然来的机会。但也容易因为贪心而破财。投资需谨慎，见好就收。',
+    work: '适合开拓新机会、谈新业务。不适合守成。',
+    social: '人缘好，容易认识新朋友。但别跟不熟的人谈钱。',
+    health: '注意肝胆，别熬夜。容易兴奋过头。',
+    money: '偏财日！有意外收入的机会，但也容易冲动投资。见好就收。',
+    lesson: {
+      title: '今日五行小课堂：什么是"偏财"？',
+      content: '你是庚金，金克木，木就是你"克的"——代表财。甲木是"偏财"，像意外之财、投资回报、父亲。偏财日=可能有意外之喜，但别太贪。'
+    }
+  },
+  '乙': { // 正财
+    casual: '实干日',
+    desc: '今天适合踏踏实实干活，正财有利——你的劳动会有回报。但身弱求财辛苦，别把自己累垮，量力而行。',
+    work: '适合处理日常事务、完成既定目标。不适合冒险或创新。',
+    social: '平淡但稳定，适合跟熟人相处。',
+    health: '容易累，注意休息。别硬撑。',
+    money: '正财稳固，适合储蓄、记账、处理日常开销。',
+    lesson: {
+      title: '今日五行小课堂：什么是"正财"？',
+      content: '你是庚金，金克木，乙木是"正财"——像工资、妻子、正当收入。正财日=踏实干活有回报，但对你（身弱庚金）来说，求财会比较辛苦。'
+    }
+  },
+  '丙': { // 七杀
+    casual: '挑战日',
+    desc: '今天压力山大，但压力也是动力。有挑战也有机遇，需要你沉稳应对。适合解决难题，但别冲动硬上。',
+    work: '适合攻坚克难、突破自我。不适合逃避和拖延。',
+    social: '容易有冲突，说话软一点。避免跟人硬碰硬。',
+    health: '注意心脑血管、眼睛。压力大就深呼吸，别憋着。',
+    money: '不宜投资，不宜借贷。今天风险高，稳着来。',
+    lesson: {
+      title: '今日五行小课堂：什么是"七杀"？',
+      content: '你是庚金，火克金，丙火是"七杀"——克你的力量，像压力、小人、挑战。七杀日=压力山大，但扛过去就是成长。'
+    }
+  },
+  '丁': { // 正官
+    casual: '规矩日',
+    desc: '今天适合按规矩办事，有管束也有保护。适合正式场合、办公、签文件。压力适中，别太叛逆。',
+    work: '适合走流程、签文件、见领导、正式汇报。不适合搞创新、挑战规则。',
+    social: '对领导客气点，适合表现乖巧。不适合顶嘴和争论。',
+    health: '注意眼睛和心脏，不要过度劳累。适合早睡。',
+    money: '正财稳固，不宜冒险。适合处理常规财务。',
+    lesson: {
+      title: '今日五行小课堂：什么是"正官"？',
+      content: '你是庚金，火克金，丁火是"正官"——像上司、规则、法律。正官日=有人管着你，适合守规矩，不适合叛逆。'
+    }
+  }
+};
+
+const FORTUNE_EL_TEXT = {'木':'木','火':'火','土':'土','金':'金','水':'水'};
+let _fortuneMonth = null;
+let _fortuneSelectedDate = null;
+
+function renderFortunePage() {
+  renderFortuneTodayCard();
+  renderFortuneCalendar();
+}
+
+function getFortuneData(dateStr) {
+  // dateStr = 'YYYY-MM-DD'
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const solar = Solar.fromYmd(y, m, d);
+  const lunar = solar.getLunar();
+
+  const dayGanZhi = lunar.getDayInGanZhi();
+  const dayGan = lunar.getDayGan();
+  const dayZhi = lunar.getDayZhi();
+  const ganEl = STEM_EL_MAP[dayGan];
+  const zhiEl = BRANCH_EL_MAP[dayZhi];
+  const luck = LUCK_LEVEL[ganEl];
+  const shishen = SHISHEN_MAP[dayGan];
+  const fortune = SHISHEN_FORTUNE[dayGan];
+
+  return {
+    solar: solar,
+    lunar: lunar,
+    dateStr: dateStr,
+    dayGanZhi: dayGanZhi,
+    dayGan: dayGan,
+    dayZhi: dayZhi,
+    ganEl: ganEl,
+    zhiEl: zhiEl,
+    luck: luck,
+    shishen: shishen,
+    fortune: fortune,
+    yi: lunar.getDayYi(),
+    ji: lunar.getDayJi(),
+    chong: lunar.getDayChongDesc(),
+    sha: lunar.getDaySha(),
+    zhiXing: lunar.getZhiXing(),
+    naYin: lunar.getDayNaYin(),
+    xiPos: lunar.getDayPositionXiDesc(),
+    caiPos: lunar.getDayPositionCaiDesc(),
+    fuPos: lunar.getDayPositionFuDesc(),
+    yearGz: lunar.getYearInGanZhi(),
+    monthGz: lunar.getMonthInGanZhi(),
+    lunarStr: lunar.getMonthInChinese() + '月' + lunar.getDayInChinese()
+  };
+}
+
+function renderFortuneTodayCard() {
+  const today = getToday();
+  const f = getFortuneData(today);
+  const el = document.getElementById('fortuneTodayCard');
+
+  const lessonId = 'lesson-' + today;
+
+  el.innerHTML = `
+    <div class="fortune-card ${f.luck.cls}">
+      <div class="fortune-card-header">
+        <div class="fortune-date-info">
+          <div class="fortune-date-main">${f.solar.getMonth()}月${f.solar.getDay()}日</div>
+          <div class="fortune-date-sub">周${dayName(f.solar.getWeek())} · 农历${f.lunarStr}</div>
+          <div class="fortune-ganzhi">
+            <span>${f.yearGz}年</span>
+            <span>${f.monthGz}月</span>
+            <span>${f.dayGanZhi}日</span>
+          </div>
+        </div>
+        <div class="fortune-luck-circle" style="background:rgba(255,255,255,0.8)">
+          <span class="luck-icon">${f.luck.icon}</span>
+          <span class="luck-text" style="color:#333">${f.luck.text}</span>
+        </div>
+      </div>
+
+      <div class="fortune-badges">
+        <span class="fortune-badge"><span class="badge-label">日柱</span>${f.dayGanZhi}</span>
+        <span class="fortune-badge"><span class="badge-label">五行</span>${f.ganEl}·${f.zhiEl}</span>
+        <span class="fortune-badge"><span class="badge-label">十神</span>${f.shishen}<span class="badge-casual">(${f.fortune.casual})</span></span>
+        <span class="fortune-badge"><span class="badge-label">纳音</span>${f.naYin}</span>
+      </div>
+
+      <div class="fortune-desc">${f.fortune.desc}</div>
+
+      <!-- 每日建议 -->
+      <div class="fortune-advice">
+        <div class="fortune-advice-item">
+          <span class="adv-label">💼 工作</span>
+          <span class="adv-text">${f.fortune.work}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">🤝 人际</span>
+          <span class="adv-text">${f.fortune.social}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">🧘 健康</span>
+          <span class="adv-text">${f.fortune.health}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">💰 理财</span>
+          <span class="adv-text">${f.fortune.money}</span>
+        </div>
+      </div>
+
+      <!-- 五行课堂 -->
+      <div class="fortune-lesson" id="${lessonId}">
+        <div class="fortune-lesson-toggle" onclick="toggleLesson('${lessonId}')">
+          <span><span class="lesson-icon">📖</span> 今日五行小课堂</span>
+          <span class="lesson-chevron">▼</span>
+        </div>
+        <div class="fortune-lesson-body">
+          <div class="fortune-lesson-title">${f.fortune.lesson.title}</div>
+          <div class="fortune-lesson-content">${f.fortune.lesson.content}</div>
+        </div>
+      </div>
+
+      <div class="fortune-extra">
+        <span class="fortune-extra-item"><span class="ex-label">冲</span> ${f.chong}</span>
+        <span class="fortune-extra-item"><span class="ex-label">煞</span> ${f.sha}</span>
+        <span class="fortune-extra-item"><span class="ex-label">建除</span> ${f.zhiXing}</span>
+        <span class="fortune-extra-item"><span class="ex-label">喜神</span> ${f.xiPos}</span>
+        <span class="fortune-extra-item"><span class="ex-label">财神</span> ${f.caiPos}</span>
+        <span class="fortune-extra-item"><span class="ex-label">福神</span> ${f.fuPos}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderFortuneCalendar() {
+  if (_fortuneMonth === null) {
+    const today = new Date();
+    _fortuneMonth = { year: today.getFullYear(), month: today.getMonth() };
+  }
+  const { year, month } = _fortuneMonth;
+  const todayStr = getToday();
+
+  document.getElementById('fortuneMonthLabel').textContent = `${year}年${month+1}月`;
+
+  const dayNames = ['一','二','三','四','五','六','日'];
+  let html = dayNames.map((n, i) => {
+    const we = i >= 5 ? ' weekend' : '';
+    return `<div class="fortune-cal-header${we}">周${n}</div>`;
+  }).join('');
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  const startDow = firstDay.getDay();
+  const startOffset = startDow === 0 ? 6 : startDow - 1;
+
+  // Prev month trailing
+  const prevLastDay = new Date(year, month, 0).getDate();
+  for (let i = startOffset - 1; i >= 0; i--) {
+    const day = prevLastDay - i;
+    const pm = month === 0 ? 11 : month - 1;
+    const py = month === 0 ? year - 1 : year;
+    const ds = fmtDate(new Date(py, pm, day));
+    html += renderFortuneDayCell(day, 'other-month', ds, todayStr);
+  }
+
+  // Current month
+  for (let day = 1; day <= totalDays; day++) {
+    const ds = fmtDate(new Date(year, month, day));
+    const isToday = ds === todayStr;
+    html += renderFortuneDayCell(day, isToday ? 'today' : '', ds, todayStr);
+  }
+
+  // Next month leading
+  const remaining = (startOffset + totalDays) % 7;
+  if (remaining > 0) {
+    for (let day = 1; day <= 7 - remaining; day++) {
+      const nm = month === 11 ? 0 : month + 1;
+      const ny = month === 11 ? year + 1 : year;
+      const ds = fmtDate(new Date(ny, nm, day));
+      html += renderFortuneDayCell(day, 'other-month', ds, todayStr);
+    }
+  }
+
+  document.getElementById('fortuneCal').innerHTML = html;
+
+  // Click handlers
+  document.querySelectorAll('.fortune-day').forEach(el => {
+    el.addEventListener('click', () => {
+      const ds = el.dataset.date;
+      showFortuneDayDetail(ds);
+    });
+  });
+}
+
+function renderFortuneDayCell(dayNum, extraCls, dateStr, todayStr) {
+  let f;
+  try {
+    f = getFortuneData(dateStr);
+  } catch(e) {
+    return `<div class="fortune-day ${extraCls}"><div class="fortune-day-num">${dayNum}</div></div>`;
+  }
+
+  const bgCls = f.luck.level === 'great' ? 'fortune-day-bg-tu' :
+                f.luck.level === 'good' ? 'fortune-day-bg-jin' :
+                f.luck.level === 'neutral' ? 'fortune-day-bg-shui' :
+                f.luck.level === 'bad' ? 'fortune-day-bg-mu' :
+                'fortune-day-bg-huo';
+
+  const isSelected = _fortuneSelectedDate === dateStr;
+
+  return `<div class="fortune-day ${bgCls} ${extraCls} ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+    <div class="fortune-day-num">${dayNum}</div>
+    <div class="fortune-day-el ${f.luck.elCls}">${f.ganEl}</div>
+  </div>`;
+}
+
+function showFortuneDayDetail(dateStr) {
+  _fortuneSelectedDate = dateStr;
+  // Update calendar selection
+  document.querySelectorAll('.fortune-day').forEach(el => {
+    el.classList.toggle('selected', el.dataset.date === dateStr);
+  });
+
+  const f = getFortuneData(dateStr);
+  const el = document.getElementById('fortuneDayDetail');
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dow = dayName(new Date(y, m-1, d).getDay());
+  const lessonId = 'lesson-detail-' + dateStr;
+
+  el.innerHTML = `
+    <div class="fortune-card ${f.luck.cls}" style="margin-bottom:0">
+      <div class="fortune-card-header">
+        <div class="fortune-date-info">
+          <div class="fortune-date-main">${m}月${d}日</div>
+          <div class="fortune-date-sub">周${dow} · 农历${f.lunarStr}</div>
+          <div class="fortune-ganzhi">
+            <span>${f.dayGanZhi}日</span>
+            <span>${f.yearGz}年</span>
+            <span>${f.monthGz}月</span>
+          </div>
+        </div>
+        <div class="fortune-luck-circle" style="background:rgba(255,255,255,0.8)">
+          <span class="luck-icon">${f.luck.icon}</span>
+          <span class="luck-text" style="color:#333">${f.luck.text}</span>
+        </div>
+      </div>
+      <div class="fortune-badges">
+        <span class="fortune-badge"><span class="badge-label">五行</span>${f.ganEl}·${f.zhiEl}</span>
+        <span class="fortune-badge"><span class="badge-label">十神</span>${f.shishen}<span class="badge-casual">(${f.fortune.casual})</span></span>
+        <span class="fortune-badge"><span class="badge-label">纳音</span>${f.naYin}</span>
+      </div>
+      <div class="fortune-desc">${f.fortune.desc}</div>
+
+      <!-- 每日建议 -->
+      <div class="fortune-advice">
+        <div class="fortune-advice-item">
+          <span class="adv-label">💼 工作</span>
+          <span class="adv-text">${f.fortune.work}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">🤝 人际</span>
+          <span class="adv-text">${f.fortune.social}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">🧘 健康</span>
+          <span class="adv-text">${f.fortune.health}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">💰 理财</span>
+          <span class="adv-text">${f.fortune.money}</span>
+        </div>
+      </div>
+
+      <!-- 五行课堂 -->
+      <div class="fortune-lesson" id="${lessonId}">
+        <div class="fortune-lesson-toggle" onclick="toggleLesson('${lessonId}')">
+          <span><span class="lesson-icon">📖</span> 今日五行小课堂</span>
+          <span class="lesson-chevron">▼</span>
+        </div>
+        <div class="fortune-lesson-body">
+          <div class="fortune-lesson-title">${f.fortune.lesson.title}</div>
+          <div class="fortune-lesson-content">${f.fortune.lesson.content}</div>
+        </div>
+      </div>
+
+      <div class="fortune-extra">
+        <span class="fortune-extra-item"><span class="ex-label">冲</span> ${f.chong}</span>
+        <span class="fortune-extra-item"><span class="ex-label">煞</span> ${f.sha}</span>
+        <span class="fortune-extra-item"><span class="ex-label">建除</span> ${f.zhiXing}</span>
+        <span class="fortune-extra-item"><span class="ex-label">喜神</span> ${f.xiPos}</span>
+        <span class="fortune-extra-item"><span class="ex-label">财神</span> ${f.caiPos}</span>
+      </div>
+    </div>
+  `;
+  el.classList.add('show');
+}
+
+function fortunePrevMonth() {
+  if (_fortuneMonth.month === 0) { _fortuneMonth.month = 11; _fortuneMonth.year--; }
+  else _fortuneMonth.month--;
+  renderFortuneCalendar();
+}
+function fortuneNextMonth() {
+  if (_fortuneMonth.month === 11) { _fortuneMonth.month = 0; _fortuneMonth.year++; }
+  else _fortuneMonth.month++;
+  renderFortuneCalendar();
+}
+function fortuneGoThisMonth() {
+  const today = new Date();
+  _fortuneMonth = { year: today.getFullYear(), month: today.getMonth() };
+  renderFortuneCalendar();
+}
+
+function toggleLesson(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
 }
 
 // ===== Init =====
