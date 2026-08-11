@@ -2977,6 +2977,16 @@ function getFortuneData(dateStr) {
   const shishen = SHISHEN_MAP[dayGan];
   const fortune = SHISHEN_FORTUNE[dayGan];
 
+  // 穿搭颜色建议（基于吉凶等级）
+  const COLOR_ADVICE = {
+    great: '运势满分！白色、米色是你的底气色，但今天气场够强，想穿黑色就穿——又飒又稳。',
+    good: '运势不错，白色、银色最配今天。黑色也能hold住，自信穿就行。',
+    neutral: '今天平平稳稳，穿白色、米色最安全。黑色今天会有点压气场，尽量少穿。',
+    bad: '今天有点冲，建议穿黄色、棕色或白色来稳一稳。黑色今天不太建议穿。',
+    worst: '今天火气重，穿黄色、大地色系兜兜底，白色也行。黑色和大红色都别穿。'
+  };
+  const colorAdvice = COLOR_ADVICE[luck.level] || COLOR_ADVICE.neutral;
+
   return {
     solar: solar,
     lunar: lunar,
@@ -3000,7 +3010,8 @@ function getFortuneData(dateStr) {
     fuPos: lunar.getDayPositionFuDesc(),
     yearGz: lunar.getYearInGanZhi(),
     monthGz: lunar.getMonthInGanZhi(),
-    lunarStr: lunar.getMonthInChinese() + '月' + lunar.getDayInChinese()
+    lunarStr: lunar.getMonthInChinese() + '月' + lunar.getDayInChinese(),
+    colorAdvice: colorAdvice
   };
 }
 
@@ -3055,6 +3066,10 @@ function renderFortuneTodayCard() {
         <div class="fortune-advice-item">
           <span class="adv-label">💰 理财</span>
           <span class="adv-text">${f.fortune.money}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">👕 穿搭</span>
+          <span class="adv-text">${f.colorAdvice}</span>
         </div>
       </div>
 
@@ -3219,6 +3234,10 @@ function showFortuneDayDetail(dateStr) {
         <div class="fortune-advice-item">
           <span class="adv-label">💰 理财</span>
           <span class="adv-text">${f.fortune.money}</span>
+        </div>
+        <div class="fortune-advice-item">
+          <span class="adv-label">👕 穿搭</span>
+          <span class="adv-text">${f.colorAdvice}</span>
         </div>
       </div>
 
